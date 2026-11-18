@@ -1,0 +1,548 @@
+{
+ "runs": [
+  "pkg6",
+  "pkg7",
+  "pkg8",
+  "pkg9",
+  "pkg10"
+ ],
+ "loss_structure": {
+  "449": {
+   "per_run": {
+    "pkg6": {
+     "ok": 278,
+     "over_abstain": 14,
+     "trap_ok": 139,
+     "partial": 11,
+     "trap_answered": 7
+    },
+    "pkg7": {
+     "ok": 281,
+     "over_abstain": 8,
+     "trap_ok": 140,
+     "partial": 13,
+     "trap_answered": 6,
+     "error": 1
+    },
+    "pkg8": {
+     "ok": 280,
+     "over_abstain": 9,
+     "trap_ok": 137,
+     "error": 3,
+     "partial": 13,
+     "trap_answered": 7
+    },
+    "pkg9": {
+     "ok": 287,
+     "over_abstain": 6,
+     "trap_ok": 137,
+     "partial": 10,
+     "trap_answered": 9
+    },
+    "pkg10": {
+     "ok": 285,
+     "over_abstain": 6,
+     "trap_ok": 138,
+     "partial": 12,
+     "trap_answered": 8
+    }
+   },
+   "always_wrong_by_kind": {
+    "over_abstain": 4,
+    "partial": 7,
+    "trap_answered": 4
+   },
+   "sometimes_wrong_by_kind": {
+    "over_abstain": 15,
+    "error": 4,
+    "trap_answered": 7,
+    "partial": 9
+   },
+   "sometimes_wrong_outcomes_by_stage": {
+    "over_abstain@generate": 23,
+    "error@none": 4,
+    "trap_answered@answered": 17,
+    "partial@answered": 23,
+    "over_abstain@select": 1
+   },
+   "sometimes_wrong_frame": {
+    "same_request_count": 30,
+    "request_count_differs": 5
+   },
+   "single_run_main": [
+    0.9451,
+    0.957,
+    0.9494,
+    0.9597,
+    0.9608
+   ],
+   "itemwise_median_of_5_runs_main": 0.9653,
+   "note": "중앙값은 버전이 다른 5회를 섞은 근사치(다수결 효과의 상한 쪽 추정)."
+  },
+  "aug": {
+   "per_run": {
+    "pkg6": {
+     "ok": 81,
+     "over_abstain": 2,
+     "trap_ok": 17
+    },
+    "pkg7": {
+     "ok": 82,
+     "trap_ok": 17,
+     "over_abstain": 1
+    },
+    "pkg8": {
+     "ok": 80,
+     "over_abstain": 2,
+     "trap_ok": 17,
+     "error": 1
+    },
+    "pkg9": {
+     "ok": 80,
+     "over_abstain": 3,
+     "trap_ok": 17
+    },
+    "pkg10": {
+     "ok": 83,
+     "trap_ok": 17
+    }
+   },
+   "always_wrong_by_kind": {},
+   "sometimes_wrong_by_kind": {
+    "over_abstain": 5,
+    "error": 1
+   },
+   "sometimes_wrong_outcomes_by_stage": {
+    "over_abstain@generate": 8,
+    "error@none": 1
+   },
+   "sometimes_wrong_frame": {
+    "same_request_count": 5,
+    "request_count_differs": 1
+   },
+   "single_run_main": [
+    0.98,
+    0.99,
+    0.97,
+    0.97,
+    1.0
+   ],
+   "itemwise_median_of_5_runs_main": 0.99,
+   "note": "중앙값은 버전이 다른 5회를 섞은 근사치(다수결 효과의 상한 쪽 추정)."
+  }
+ },
+ "attribute_signal": {
+  "answers": {
+   "gold_answered": 1876,
+   "trap_answered": 37
+  },
+  "distinct_answered_items": {
+   "gold_answered": 383,
+   "trap_answered": 11
+  },
+  "by_attribute": {
+   "ext_LIST": {
+    "gold_answered": {
+     "answers_using": 0,
+     "share_of_answers": 0.0,
+     "distinct_items_using": 0,
+     "items": [],
+     "share_of_answers_where_delivered": 0.1898
+    },
+    "trap_answered": {
+     "answers_using": 15,
+     "share_of_answers": 0.4054,
+     "distinct_items_using": 4,
+     "items": [
+      "R3-REAL-G-07",
+      "R3-REAL-G-09",
+      "R3-REAL-G-10",
+      "R3-SYN-G-12"
+     ],
+     "share_of_answers_where_delivered": 0.4865
+    },
+    "props_involved": {
+     "도시공원:제22조제1항": [
+      "trap_answered:R3-REAL-G-07",
+      "trap_answered:R3-REAL-G-09",
+      "trap_answered:R3-REAL-G-10",
+      "trap_answered:R3-SYN-G-12"
+     ]
+    }
+   },
+   "ext_DEFINITION": {
+    "gold_answered": {
+     "answers_using": 22,
+     "share_of_answers": 0.0117,
+     "distinct_items_using": 8,
+     "items": [
+      "A55",
+      "PORTAL26-B06",
+      "R3-SYN-B-11",
+      "R3-SYN-G-05",
+      "R3-SYN-G-19",
+      "R3-SYN-Y-03",
+      "U033",
+      "U049"
+     ],
+     "share_of_answers_where_delivered": 0.5293
+    },
+    "trap_answered": {
+     "answers_using": 0,
+     "share_of_answers": 0.0,
+     "distinct_items_using": 0,
+     "items": [],
+     "share_of_answers_where_delivered": 0.5946
+    },
+    "props_involved": {
+     "자전거:제2조제1호": [
+      "gold_answered:R3-SYN-B-11"
+     ],
+     "도시공원:제2조제1호": [
+      "gold_answered:R3-SYN-G-05",
+      "gold_answered:R3-SYN-G-19",
+      "gold_answered:U049"
+     ],
+     "자전거:제2조제11호": [
+      "gold_answered:U033"
+     ],
+     "자전거:제2조제10호": [
+      "gold_answered:A55",
+      "gold_answered:PORTAL26-B06"
+     ],
+     "청년:제3조제8호": [
+      "gold_answered:R3-SYN-Y-03"
+     ]
+    }
+   },
+   "designation": {
+    "gold_answered": {
+     "answers_using": 83,
+     "share_of_answers": 0.0442,
+     "distinct_items_using": 20,
+     "items": [
+      "A32",
+      "A90",
+      "A93",
+      "A94",
+      "PORTAL26-A02",
+      "PORTAL26-P04",
+      "PORTAL26-S06",
+      "R3-SYN-G-07",
+      "R3-SYN-S-02",
+      "R3-SYN-S-07",
+      "R3-SYN-S-09",
+      "R3-SYN-S-15",
+      "R3-SYN-S-19",
+      "R3-SYN-S-20",
+      "S2",
+      "U040",
+      "U049",
+      "U065",
+      "X40-M10",
+      "X40-S09"
+     ],
+     "share_of_answers_where_delivered": 0.2217
+    },
+    "trap_answered": {
+     "answers_using": 16,
+     "share_of_answers": 0.4324,
+     "distinct_items_using": 5,
+     "items": [
+      "R3-REAL-G-07",
+      "R3-REAL-S-04",
+      "R3-REAL-S-11",
+      "R3-REAL-S-13",
+      "R3-SYN-G-12"
+     ],
+     "share_of_answers_where_delivered": 0.7838
+    },
+    "props_involved": {
+     "주차장:제4조제2항": [
+      "gold_answered:A32"
+     ],
+     "주차장:제4조제2항제2호": [
+      "gold_answered:A32"
+     ],
+     "금연:제5조제4항": [
+      "gold_answered:A90",
+      "gold_answered:R3-SYN-G-07",
+      "gold_answered:R3-SYN-S-02",
+      "gold_answered:R3-SYN-S-07",
+      "gold_answered:R3-SYN-S-19",
+      "gold_answered:R3-SYN-S-20",
+      "gold_answered:S2",
+      "gold_answered:X40-M10",
+      "gold_answered:X40-S09",
+      "trap_answered:R3-REAL-S-04",
+      "trap_answered:R3-REAL-S-11"
+     ],
+     "금연:제7조제4항": [
+      "gold_answered:A93",
+      "gold_answered:R3-SYN-S-09",
+      "trap_answered:R3-REAL-S-13"
+     ],
+     "도시공원:제22조제2항제1호": [
+      "gold_answered:U049",
+      "trap_answered:R3-REAL-G-07",
+      "trap_answered:R3-SYN-G-12"
+     ],
+     "금연:제5조제1항제10호": [
+      "gold_answered:PORTAL26-S06",
+      "gold_answered:U065",
+      "trap_answered:R3-REAL-S-13"
+     ],
+     "자전거:제14조제3항": [
+      "gold_answered:U040"
+     ],
+     "금연:제7조제1항": [
+      "gold_answered:A94",
+      "gold_answered:R3-SYN-S-15",
+      "gold_answered:R3-SYN-S-20"
+     ],
+     "주차장:제7조제1항제4호": [
+      "gold_answered:PORTAL26-P04"
+     ],
+     "동물보호:제7조제2항": [
+      "gold_answered:PORTAL26-A02"
+     ]
+    }
+   },
+   "delegated": {
+    "gold_answered": {
+     "answers_using": 111,
+     "share_of_answers": 0.0592,
+     "distinct_items_using": 33,
+     "items": [
+      "A13",
+      "A22",
+      "A50",
+      "A74",
+      "A76",
+      "A79",
+      "A81",
+      "A83",
+      "A94",
+      "PORTAL26-G18",
+      "PORTAL26-Y11",
+      "R3-REAL-A-05",
+      "R3-REAL-Y-10",
+      "R3-SYN-A-03",
+      "R3-SYN-B-07",
+      "R3-SYN-G-03",
+      "R3-SYN-G-14",
+      "R3-SYN-G-19",
+      "R3-SYN-S-15",
+      "R3-SYN-S-17",
+      "R3-SYN-Y-01",
+      "R3-SYN-Y-02",
+      "R3-SYN-Y-15",
+      "S3",
+      "U018",
+      "U021",
+      "U054",
+      "U058",
+      "X40-C09",
+      "X40-M04",
+      "X40-M06",
+      "X40-M07",
+      "X40-S06"
+     ],
+     "share_of_answers_where_delivered": 0.4728
+    },
+    "trap_answered": {
+     "answers_using": 4,
+     "share_of_answers": 0.1081,
+     "distinct_items_using": 2,
+     "items": [
+      "R3-REAL-G-13",
+      "R3-REAL-S-11"
+     ],
+     "share_of_answers_where_delivered": 0.6757
+    },
+    "props_involved": {
+     "자전거:제12조의3제3항": [
+      "gold_answered:A13"
+     ],
+     "도시공원:제20조제2항": [
+      "gold_answered:A74",
+      "gold_answered:R3-SYN-G-14"
+     ],
+     "도시공원:제31조제2항": [
+      "gold_answered:A76"
+     ],
+     "청년:제3조제4호": [
+      "gold_answered:A79"
+     ],
+     "청년:제23조제2항": [
+      "gold_answered:A83",
+      "gold_answered:PORTAL26-Y11",
+      "gold_answered:R3-SYN-Y-15",
+      "gold_answered:U058"
+     ],
+     "자전거:제13조제6항": [
+      "gold_answered:A13",
+      "gold_answered:R3-SYN-B-07"
+     ],
+     "도시공원:제15조제2항": [
+      "gold_answered:R3-SYN-G-19"
+     ],
+     "자전거:제9조제1항단서": [
+      "gold_answered:X40-M04"
+     ],
+     "도시공원:제23조제3항": [
+      "gold_answered:X40-M07",
+      "trap_answered:R3-REAL-G-13"
+     ],
+     "주차장:제27조제1항": [
+      "gold_answered:U018"
+     ],
+     "주차장:제27조제2항": [
+      "gold_answered:U018"
+     ],
+     "주차장:제24조제2항": [
+      "gold_answered:U021"
+     ],
+     "도시공원:제21조": [
+      "gold_answered:U054"
+     ],
+     "청년:제3조제1호단서": [
+      "gold_answered:A22",
+      "gold_answered:R3-REAL-Y-10",
+      "gold_answered:R3-SYN-Y-01",
+      "gold_answered:R3-SYN-Y-02",
+      "gold_answered:S3",
+      "gold_answered:X40-C09",
+      "gold_answered:X40-S06"
+     ],
+     "청년:제10조제4항단서": [
+      "gold_answered:A81"
+     ],
+     "청년:제10조제5항": [
+      "gold_answered:A81"
+     ],
+     "금연:제7조제3항": [
+      "gold_answered:A94",
+      "gold_answered:R3-SYN-S-15"
+     ],
+     "동물보호:제15조제3항": [
+      "gold_answered:R3-REAL-A-05",
+      "gold_answered:R3-SYN-A-03"
+     ],
+     "도시공원:제20조제3항": [
+      "gold_answered:R3-SYN-G-03",
+      "gold_answered:X40-M06"
+     ],
+     "도시공원:제15조제1항": [
+      "gold_answered:PORTAL26-G18",
+      "gold_answered:R3-SYN-G-19",
+      "gold_answered:X40-M06"
+     ],
+     "도시공원:별표3#행6": [
+      "gold_answered:U054"
+     ],
+     "도시공원:별표3#행7": [
+      "gold_answered:U054"
+     ],
+     "동물보호:제14조제4항": [
+      "gold_answered:A50"
+     ],
+     "금연:제2조제1호": [
+      "trap_answered:R3-REAL-S-11"
+     ],
+     "금연:제9조의2제7항": [
+      "gold_answered:R3-SYN-S-17"
+     ]
+    }
+   }
+  },
+  "note": "answers_using는 5회 실행 합계(같은 문항이 여러 번 셈). 독립 표본 수는 distinct_items_using을 볼 것."
+ },
+ "citation_replay_check": {
+  "449/pkg6": {
+   "answered": 296,
+   "mismatch": 4
+  },
+  "449/pkg7": {
+   "answered": 300,
+   "mismatch": 0
+  },
+  "449/pkg8": {
+   "answered": 300,
+   "mismatch": 0
+  },
+  "449/pkg9": {
+   "answered": 306,
+   "mismatch": 0
+  },
+  "449/pkg10": {
+   "answered": 305,
+   "mismatch": 0
+  },
+  "aug/pkg6": {
+   "answered": 81,
+   "mismatch": 1
+  },
+  "aug/pkg7": {
+   "answered": 82,
+   "mismatch": 0
+  },
+  "aug/pkg8": {
+   "answered": 80,
+   "mismatch": 0
+  },
+  "aug/pkg9": {
+   "answered": 80,
+   "mismatch": 0
+  },
+  "aug/pkg10": {
+   "answered": 83,
+   "mismatch": 0
+  }
+ },
+ "citation_alternatives": {
+  "lead_reference": {
+   "added": {
+    "non_gold_unit": 106,
+    "gold_unit": 5
+   },
+   "main_gain_per_run": {
+    "449": 0.0011,
+    "aug": 0.0
+   },
+   "improved_items": [
+    "R3-REAL-P-06"
+   ]
+  },
+  "all_selected": {
+   "added": {
+    "non_gold_unit": 568,
+    "to_trap_answer": 39,
+    "gold_unit": 28
+   },
+   "main_gain_per_run": {
+    "449": 0.0035,
+    "aug": 0.0
+   },
+   "improved_items": [
+    "R3-REAL-A-07",
+    "R3-SYN-A-13",
+    "R3-SYN-A-19",
+    "R3-SYN-B-05",
+    "R3-SYN-G-19",
+    "R3-SYN-Y-19",
+    "U016",
+    "U036",
+    "U065",
+    "X40-M09"
+   ]
+  }
+ },
+ "identical_request_outputs": {
+  "common_request_bodies_pkg9_pkg10": 542,
+  "different_output": 424,
+  "same_output": 38,
+  "embedding": 80,
+  "note": "캐시 키는 요청 본문 해시. 같은 키 = 같은 본문(temperature 0). seed=7을 넣은 별도 확인(4회×2)에서도 4회 출력이 모두 달랐다."
+ }
+}

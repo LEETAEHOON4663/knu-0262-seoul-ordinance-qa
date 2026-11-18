@@ -1,0 +1,17 @@
+{
+  "mode": "offline",
+  "runtime_dir": "runtime",
+  "api_key_file": null,
+  "budget_cap_usd": 0.0,
+  "host": "127.0.0.1",
+  "port": 8000,
+  "max_concurrent_requests": 4,
+  "request_deadline_seconds": 87.0,
+  "pipeline_profile": "pkg",
+  "answer_model": "solar-pro4",
+  "plan_model": "solar-pro4",
+  "review_model": "solar-pro4",
+  "review_max_tokens": 1200,
+  "review": true,
+  "context_budget_chars": 10000
+}

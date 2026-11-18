@@ -1,0 +1,11 @@
+{
+ "_note": "PKG11.1 = PKG11 + 교정 기권 외부 예외(EXTERNAL+SILENT, 그래프 외부 참조 기준). 캐시 재생 확인 당시 소스",
+ "files": {
+  "lawqa/pkg_pipeline.py": "9e2ba9568f7e01357a24a498218840e68036a04fb04715d1da273fded183ae75",
+  "lawqa/pkg_verify.py": "94e208578538038ce3cb12bc5c808dd13291229a00f6c0636e3b27cb3914c975",
+  "lawqa/pkg_prompts.py": "66139eb3efa4593a51a10f9d0eef57dd738623aa546198e9e4fbfa504cc57a5f",
+  "lawqa/config.py": "7b718913ed3fbf48e648b7f68ae50459434365167866e3ef5c20acd1ad9f02b5",
+  "lawqa/pkg_runtime.py": "61bc44e4e5e323685c6a38b7ee63a5f52c3b8370002614ab5598b219b3960511",
+  "lawqa/pkg_graph.py": "04b659482721e5dbb6a4d3287f9e671d2cd292220e287c1e6d353e84fe410020"
+ }
+}

@@ -1,0 +1,14 @@
+{
+ "mode": "replay",
+ "runtime_dir": "../../replay/hold150_pkg11",
+ "budget_cap_usd": 0.0,
+ "context_budget_chars": 10000,
+ "max_concurrent_requests": 4,
+ "request_deadline_seconds": 87.0,
+ "pipeline_profile": "pkg",
+ "data_dir": "../data",
+ "review_model": "solar-pro4",
+ "review_max_tokens": 1200,
+ "api_key_file": null,
+ "port": 8000
+}

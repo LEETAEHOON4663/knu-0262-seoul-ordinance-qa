@@ -1,0 +1,22 @@
+{
+ "lawqa/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ "lawqa/__main__.py": "9636c1c4f8805292ba926a8427de063cbcc36c26097fffb95e42d117085cb6d9",
+ "lawqa/config.py": "7271698163fa2b5bd187e9ed5e0c03d6772b9cf9c836bf4f7e92337c7af92f78",
+ "lawqa/contracts.py": "314158096792009f26fa0c0e2d85fe817472ee27f06225a25bd5fc469f5b6f48",
+ "lawqa/corpus.py": "c4ea4e05c73120adcfc902129deecb23882a3cec0898f5553b72b1c137903c40",
+ "lawqa/graph.py": "779e34bb28d0b1e29a10b453a4be75618e51134faf7e065f7225578b51fe58d9",
+ "lawqa/llm.py": "839e55ca7dd977bf4ca04605a30c99f6d281e6c9dcedc903bd54805573d87af9",
+ "lawqa/pipeline.py": "86dec21c5e3b46b4b7523b8a7b226e562d0efc6afac93566740af323a89686dc",
+ "lawqa/pkg_graph.py": "6b75f7ae5dbdcc22aaf4a0a6fd456f7866849d371ac754590477b7de487794cc",
+ "lawqa/pkg_pipeline.py": "ff46c5dd402d9109d10d81887ddbca0042bd1f9b9b6d1af262be830dd495db95",
+ "lawqa/pkg_prompts.py": "7bdeabddc2898639088773f01e7cf15faa39049e80f0cc65f355ceeb30335beb",
+ "lawqa/pkg_runtime.py": "b6cfaf3a930662da5f1c22abe51ae9c2e5b37705b65b2bb880e2c18fee42b3b8",
+ "lawqa/prompts.py": "b8434efdc987824893abd70b01cbfff820a5e6a986f160c1e243885e3920c374",
+ "lawqa/search.py": "5bb394ac3c5fcd4381157b5719e4087696799c613bbbdf129a85deb5e21663e2",
+ "lawqa/selfcheck.py": "bbbdc2ca4485ce9a394169b3469501c604e20389f1c207880508d04cc3f7add7",
+ "lawqa/server.py": "179e04aedf5ef721120bd3f02ab3db6ae1392e5bab9c6df136956050e9ed3917",
+ "data/pkg/graph.json": "95bf5e033099d239d7843191082852a9b09ac947ff727a2427bdd18923f6a760",
+ "data/pkg/vectors.json": "14f7b59a40267a580b1cf0c214e3206cb5258f35426c76decb116ee0ac960dbb",
+ "runs/FULL449/live_pkg11.json": "716f8bbf0ce9e4b495311cb0376a301825453191fe987ad85f25d9f8c6f4017c",
+ "_note": "PKG11 서버 시작 직전 소스·자산(공통 보정, note 기본 끔: 입력 고정 비교 판정 보류). 기록 시각: 2026-11-15 00:36:16"
+}

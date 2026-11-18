@@ -1,0 +1,15 @@
+# API 키: 절대 올리지 않음
+.env
+.env.*
+!.env.example
+*.key
+upstage_api_key
+
+# 실행 중 생기는 파일(모델 응답 캐시·원장·trace)
+claude_impl/runtime/
+runtime/
+verify_output/
+
+__pycache__/
+*.pyc
+.venv/

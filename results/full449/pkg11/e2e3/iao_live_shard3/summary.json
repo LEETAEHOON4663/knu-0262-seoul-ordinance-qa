@@ -1,0 +1,31 @@
+{
+ "n": 112,
+ "e1_literal_full": 102,
+ "e1_operation_zero_full": 102,
+ "e1_operation_unknown": 0,
+ "general_citation_mean": 0.9700854700854702,
+ "e2_content_correct": 107,
+ "e2_strict_correct": 107,
+ "e2_pending": 0,
+ "e3_pass": 86,
+ "e3_pending": 16,
+ "operation_failures": 0,
+ "reference_e2_reuse": 29,
+ "reference_e3_reuse": 0,
+ "generation_API_calls": 0,
+ "evaluation_usage": {
+  "requests": 326,
+  "failed_attempts": 24,
+  "unresolved": 0,
+  "unknown_usage": 11,
+  "models": {
+   "solar-pro4": 326
+  },
+  "tokens": {
+   "prompt_tokens": 2706854,
+   "completion_tokens": 124989,
+   "total_tokens": 2831843
+  }
+ },
+ "actual_bill_queried": false
+}

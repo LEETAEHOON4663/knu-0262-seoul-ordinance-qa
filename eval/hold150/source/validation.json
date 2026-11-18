@@ -1,0 +1,1588 @@
+{
+  "date_kst": "2026-11-17",
+  "status": "mechanical_checks_passed_and_AI_cross_review_complete",
+  "counts": {
+    "types": {
+      "단순 조회": 30,
+      "조건 판단": 40,
+      "여러 조항 결합": 30,
+      "근거 없음": 50
+    },
+    "domains": {
+      "parking": 25,
+      "animal": 25,
+      "bicycle": 25,
+      "park": 25,
+      "youth": 25,
+      "smoking": 25
+    },
+    "answerability": {
+      "answer": 100,
+      "abstain": 50
+    },
+    "subtypes": {
+      "rule_exists_missing_core_detail": 20,
+      "delegated_elsewhere": 10,
+      "local_or_operational_fact": 10,
+      "no_related_rule": 10
+    },
+    "annex_required": 10
+  },
+  "unique_ids": 150,
+  "unique_normalized_questions": 150,
+  "exact_matches_to_old549": 0,
+  "article_number_questions": 0,
+  "styles": {
+    "direct": 75,
+    "citizen": 75
+  },
+  "style_by_id": {
+    "HOLD26-P01": "direct",
+    "HOLD26-P02": "direct",
+    "HOLD26-P03": "citizen",
+    "HOLD26-P04": "direct",
+    "HOLD26-P05": "direct",
+    "HOLD26-P06": "citizen",
+    "HOLD26-P07": "citizen",
+    "HOLD26-P08": "citizen",
+    "HOLD26-P09": "direct",
+    "HOLD26-P10": "citizen",
+    "HOLD26-P11": "citizen",
+    "HOLD26-P12": "direct",
+    "HOLD26-P13": "citizen",
+    "HOLD26-P14": "direct",
+    "HOLD26-P15": "citizen",
+    "HOLD26-P16": "citizen",
+    "HOLD26-P17": "direct",
+    "HOLD26-P18": "citizen",
+    "HOLD26-P19": "direct",
+    "HOLD26-P20": "citizen",
+    "HOLD26-P21": "direct",
+    "HOLD26-P22": "direct",
+    "HOLD26-P23": "citizen",
+    "HOLD26-P24": "citizen",
+    "HOLD26-P25": "direct",
+    "HOLD26-A01": "direct",
+    "HOLD26-A02": "citizen",
+    "HOLD26-A03": "direct",
+    "HOLD26-A04": "citizen",
+    "HOLD26-A05": "direct",
+    "HOLD26-A06": "citizen",
+    "HOLD26-A07": "direct",
+    "HOLD26-A08": "direct",
+    "HOLD26-A09": "citizen",
+    "HOLD26-A10": "citizen",
+    "HOLD26-A11": "direct",
+    "HOLD26-A12": "citizen",
+    "HOLD26-A13": "direct",
+    "HOLD26-A14": "direct",
+    "HOLD26-A15": "citizen",
+    "HOLD26-A16": "direct",
+    "HOLD26-A17": "citizen",
+    "HOLD26-A18": "direct",
+    "HOLD26-A19": "citizen",
+    "HOLD26-A20": "direct",
+    "HOLD26-A21": "direct",
+    "HOLD26-A22": "citizen",
+    "HOLD26-A23": "citizen",
+    "HOLD26-A24": "direct",
+    "HOLD26-A25": "citizen",
+    "HOLD26-B01": "direct",
+    "HOLD26-B02": "citizen",
+    "HOLD26-B03": "direct",
+    "HOLD26-B04": "direct",
+    "HOLD26-B05": "citizen",
+    "HOLD26-B06": "citizen",
+    "HOLD26-B07": "direct",
+    "HOLD26-B08": "citizen",
+    "HOLD26-B09": "citizen",
+    "HOLD26-B10": "citizen",
+    "HOLD26-B11": "direct",
+    "HOLD26-B12": "citizen",
+    "HOLD26-B13": "citizen",
+    "HOLD26-B14": "direct",
+    "HOLD26-B15": "direct",
+    "HOLD26-B16": "citizen",
+    "HOLD26-B17": "citizen",
+    "HOLD26-B18": "citizen",
+    "HOLD26-B19": "direct",
+    "HOLD26-B20": "citizen",
+    "HOLD26-B21": "direct",
+    "HOLD26-B22": "direct",
+    "HOLD26-B23": "citizen",
+    "HOLD26-B24": "direct",
+    "HOLD26-B25": "direct",
+    "HOLD26-G01": "direct",
+    "HOLD26-G02": "direct",
+    "HOLD26-G03": "citizen",
+    "HOLD26-G04": "direct",
+    "HOLD26-G05": "direct",
+    "HOLD26-G06": "citizen",
+    "HOLD26-G07": "citizen",
+    "HOLD26-G08": "citizen",
+    "HOLD26-G09": "direct",
+    "HOLD26-G10": "citizen",
+    "HOLD26-G11": "citizen",
+    "HOLD26-G12": "citizen",
+    "HOLD26-G13": "direct",
+    "HOLD26-G14": "direct",
+    "HOLD26-G15": "citizen",
+    "HOLD26-G16": "direct",
+    "HOLD26-G17": "direct",
+    "HOLD26-G18": "citizen",
+    "HOLD26-G19": "direct",
+    "HOLD26-G20": "citizen",
+    "HOLD26-G21": "direct",
+    "HOLD26-G22": "direct",
+    "HOLD26-G23": "citizen",
+    "HOLD26-G24": "citizen",
+    "HOLD26-G25": "direct",
+    "HOLD26-Y01": "citizen",
+    "HOLD26-Y02": "direct",
+    "HOLD26-Y03": "direct",
+    "HOLD26-Y04": "citizen",
+    "HOLD26-Y05": "direct",
+    "HOLD26-Y06": "citizen",
+    "HOLD26-Y07": "citizen",
+    "HOLD26-Y08": "direct",
+    "HOLD26-Y09": "citizen",
+    "HOLD26-Y10": "direct",
+    "HOLD26-Y11": "citizen",
+    "HOLD26-Y12": "direct",
+    "HOLD26-Y13": "citizen",
+    "HOLD26-Y14": "direct",
+    "HOLD26-Y15": "citizen",
+    "HOLD26-Y16": "direct",
+    "HOLD26-Y17": "citizen",
+    "HOLD26-Y18": "citizen",
+    "HOLD26-Y19": "direct",
+    "HOLD26-Y20": "direct",
+    "HOLD26-Y21": "direct",
+    "HOLD26-Y22": "citizen",
+    "HOLD26-Y23": "direct",
+    "HOLD26-Y24": "citizen",
+    "HOLD26-Y25": "citizen",
+    "HOLD26-S01": "citizen",
+    "HOLD26-S02": "direct",
+    "HOLD26-S03": "direct",
+    "HOLD26-S04": "citizen",
+    "HOLD26-S05": "direct",
+    "HOLD26-S06": "direct",
+    "HOLD26-S07": "citizen",
+    "HOLD26-S08": "direct",
+    "HOLD26-S09": "direct",
+    "HOLD26-S10": "citizen",
+    "HOLD26-S11": "citizen",
+    "HOLD26-S12": "direct",
+    "HOLD26-S13": "citizen",
+    "HOLD26-S14": "direct",
+    "HOLD26-S15": "citizen",
+    "HOLD26-S16": "citizen",
+    "HOLD26-S17": "direct",
+    "HOLD26-S18": "citizen",
+    "HOLD26-S19": "direct",
+    "HOLD26-S20": "direct",
+    "HOLD26-S21": "direct",
+    "HOLD26-S22": "citizen",
+    "HOLD26-S23": "citizen",
+    "HOLD26-S24": "citizen",
+    "HOLD26-S25": "direct"
+  },
+  "annex_question_ids": [
+    "HOLD26-P01",
+    "HOLD26-P02",
+    "HOLD26-P06",
+    "HOLD26-P13",
+    "HOLD26-P14",
+    "HOLD26-G05",
+    "HOLD26-G11",
+    "HOLD26-G12",
+    "HOLD26-G13",
+    "HOLD26-G14"
+  ],
+  "evidence_quotes_checked": 184,
+  "quote_exact_match_errors": 0,
+  "gold_source_and_parser_errors": 0,
+  "gold_self_match_count": 100,
+  "AI_cross_reviewed_items": 150,
+  "human_reviewed_items": 0,
+  "legal_expert_reviewed_items": 0,
+  "system_performance_evaluation_runs": 0,
+  "paid_API_calls_for_this_task": 0,
+  "source_manifest_verified": true,
+  "integrity_validator_selftest": {
+    "tests": [
+      {
+        "name": "out_of_range_id_rejected",
+        "passed": true,
+        "detected": [
+          {
+            "id": "HOLD26-P26",
+            "message": "bad ID"
+          }
+        ]
+      },
+      {
+        "name": "invented_quote_rejected",
+        "passed": true,
+        "detected": [
+          {
+            "id": "HOLD26-P01",
+            "message": "quote not exact within labeled source 서울특별시 주차장 설치 및 관리 조례 별표 2"
+          }
+        ]
+      },
+      {
+        "name": "missing_source_label_rejected",
+        "passed": true,
+        "detected": [
+          {
+            "id": "HOLD26-P01",
+            "message": "gold not exact existing article/paragraph/annex 서울특별시 주차장 설치 및 관리 조례 제999조"
+          },
+          {
+            "id": "HOLD26-P01",
+            "message": "annex flag/gold mismatch"
+          },
+          {
+            "id": "HOLD26-P01",
+            "message": "gold group without evidence ['서울특별시 주차장 설치 및 관리 조례 제999조']"
+          }
+        ]
+      },
+      {
+        "name": "annex_flag_mismatch_rejected",
+        "passed": true,
+        "detected": [
+          {
+            "id": "HOLD26-P01",
+            "message": "annex flag/gold mismatch"
+          }
+        ]
+      },
+      {
+        "name": "nonstandard_abstain_rejected",
+        "passed": true,
+        "detected": [
+          {
+            "id": "HOLD26-P18",
+            "message": "abstain contract mismatch"
+          }
+        ]
+      },
+      {
+        "name": "abstain_with_gold_rejected",
+        "passed": true,
+        "detected": [
+          {
+            "id": "HOLD26-P18",
+            "message": "abstain contract mismatch"
+          },
+          {
+            "id": "HOLD26-P18",
+            "message": "annex flag/gold mismatch"
+          },
+          {
+            "id": "HOLD26-P18",
+            "message": "gold group without evidence ['서울특별시 주차장 설치 및 관리 조례 별표 2']"
+          }
+        ]
+      },
+      {
+        "name": "wrong_source_url_rejected",
+        "passed": true,
+        "detected": [
+          {
+            "id": "HOLD26-P01",
+            "message": "source URL mismatch"
+          }
+        ]
+      },
+      {
+        "name": "wrong_effective_date_rejected",
+        "passed": true,
+        "detected": [
+          {
+            "id": "HOLD26-P01",
+            "message": "effective date mismatch"
+          }
+        ]
+      },
+      {
+        "name": "original_check_full_match",
+        "passed": true
+      },
+      {
+        "name": "original_check_paragraph_partial_match",
+        "passed": true
+      }
+    ],
+    "passed": 10,
+    "scope": "dataset integrity checker only; no QA calls"
+  },
+  "warnings": [],
+  "lexical_similarity": [
+    {
+      "id": "HOLD26-P01",
+      "declared_existing_ids": [
+        "A33"
+      ],
+      "nearest_id": "T2",
+      "char_bigram_jaccard": 0.1333
+    },
+    {
+      "id": "HOLD26-P02",
+      "declared_existing_ids": [
+        "A33"
+      ],
+      "nearest_id": "A33",
+      "char_bigram_jaccard": 0.2135
+    },
+    {
+      "id": "HOLD26-P03",
+      "declared_existing_ids": [
+        "U002"
+      ],
+      "nearest_id": "U079",
+      "char_bigram_jaccard": 0.2449
+    },
+    {
+      "id": "HOLD26-P04",
+      "declared_existing_ids": [
+        "U087"
+      ],
+      "nearest_id": "A58",
+      "char_bigram_jaccard": 0.15
+    },
+    {
+      "id": "HOLD26-P05",
+      "declared_existing_ids": [
+        "U008"
+      ],
+      "nearest_id": "A09",
+      "char_bigram_jaccard": 0.1194
+    },
+    {
+      "id": "HOLD26-P06",
+      "declared_existing_ids": [
+        "A33",
+        "U014"
+      ],
+      "nearest_id": "A33",
+      "char_bigram_jaccard": 0.1308
+    },
+    {
+      "id": "HOLD26-P07",
+      "declared_existing_ids": [
+        "U005"
+      ],
+      "nearest_id": "PORTAL26-P12",
+      "char_bigram_jaccard": 0.113
+    },
+    {
+      "id": "HOLD26-P08",
+      "declared_existing_ids": [
+        "U006"
+      ],
+      "nearest_id": "U007",
+      "char_bigram_jaccard": 0.1733
+    },
+    {
+      "id": "HOLD26-P09",
+      "declared_existing_ids": [
+        "U007"
+      ],
+      "nearest_id": "U007",
+      "char_bigram_jaccard": 0.1395
+    },
+    {
+      "id": "HOLD26-P10",
+      "declared_existing_ids": [
+        "U018"
+      ],
+      "nearest_id": "R3-REAL-P-09",
+      "char_bigram_jaccard": 0.1461
+    },
+    {
+      "id": "HOLD26-P11",
+      "declared_existing_ids": [
+        "U007"
+      ],
+      "nearest_id": "PORTAL26-G04",
+      "char_bigram_jaccard": 0.0979
+    },
+    {
+      "id": "HOLD26-P12",
+      "declared_existing_ids": [
+        "U010"
+      ],
+      "nearest_id": "U010",
+      "char_bigram_jaccard": 0.1042
+    },
+    {
+      "id": "HOLD26-P13",
+      "declared_existing_ids": [
+        "U011"
+      ],
+      "nearest_id": "A57",
+      "char_bigram_jaccard": 0.1136
+    },
+    {
+      "id": "HOLD26-P14",
+      "declared_existing_ids": [
+        "U014"
+      ],
+      "nearest_id": "A35",
+      "char_bigram_jaccard": 0.136
+    },
+    {
+      "id": "HOLD26-P15",
+      "declared_existing_ids": [
+        "PORTAL26-P17",
+        "U008"
+      ],
+      "nearest_id": "U008",
+      "char_bigram_jaccard": 0.1275
+    },
+    {
+      "id": "HOLD26-P16",
+      "declared_existing_ids": [
+        "U019",
+        "U018"
+      ],
+      "nearest_id": "U019",
+      "char_bigram_jaccard": 0.0877
+    },
+    {
+      "id": "HOLD26-P17",
+      "declared_existing_ids": [
+        "A39",
+        "U009"
+      ],
+      "nearest_id": "U009",
+      "char_bigram_jaccard": 0.2239
+    },
+    {
+      "id": "HOLD26-P18",
+      "declared_existing_ids": [
+        "U087"
+      ],
+      "nearest_id": "U087",
+      "char_bigram_jaccard": 0.1475
+    },
+    {
+      "id": "HOLD26-P19",
+      "declared_existing_ids": [
+        "U002"
+      ],
+      "nearest_id": "U003",
+      "char_bigram_jaccard": 0.25
+    },
+    {
+      "id": "HOLD26-P20",
+      "declared_existing_ids": [
+        "U007"
+      ],
+      "nearest_id": "PORTAL26-P19",
+      "char_bigram_jaccard": 0.1188
+    },
+    {
+      "id": "HOLD26-P21",
+      "declared_existing_ids": [
+        "U092"
+      ],
+      "nearest_id": "U092",
+      "char_bigram_jaccard": 0.2
+    },
+    {
+      "id": "HOLD26-P22",
+      "declared_existing_ids": [
+        "A40"
+      ],
+      "nearest_id": "X40-T02",
+      "char_bigram_jaccard": 0.137
+    },
+    {
+      "id": "HOLD26-P23",
+      "declared_existing_ids": [
+        "PORTAL26-P18"
+      ],
+      "nearest_id": "PORTAL26-P18",
+      "char_bigram_jaccard": 0.1447
+    },
+    {
+      "id": "HOLD26-P24",
+      "declared_existing_ids": [
+        "U013",
+        "PORTAL26-P20"
+      ],
+      "nearest_id": "X40-T02",
+      "char_bigram_jaccard": 0.1061
+    },
+    {
+      "id": "HOLD26-P25",
+      "declared_existing_ids": [
+        "A42"
+      ],
+      "nearest_id": "A57",
+      "char_bigram_jaccard": 0.1176
+    },
+    {
+      "id": "HOLD26-A01",
+      "declared_existing_ids": [
+        "A43"
+      ],
+      "nearest_id": "U090",
+      "char_bigram_jaccard": 0.1311
+    },
+    {
+      "id": "HOLD26-A02",
+      "declared_existing_ids": [
+        "U025"
+      ],
+      "nearest_id": "U025",
+      "char_bigram_jaccard": 0.1692
+    },
+    {
+      "id": "HOLD26-A03",
+      "declared_existing_ids": [
+        "A50"
+      ],
+      "nearest_id": "A50",
+      "char_bigram_jaccard": 0.1389
+    },
+    {
+      "id": "HOLD26-A04",
+      "declared_existing_ids": [
+        "X40-S02"
+      ],
+      "nearest_id": "A09",
+      "char_bigram_jaccard": 0.1216
+    },
+    {
+      "id": "HOLD26-A05",
+      "declared_existing_ids": [
+        "U030"
+      ],
+      "nearest_id": "PORTAL26-A12",
+      "char_bigram_jaccard": 0.0814
+    },
+    {
+      "id": "HOLD26-A06",
+      "declared_existing_ids": [
+        "R3-SYN-A-18"
+      ],
+      "nearest_id": "PORTAL26-A03",
+      "char_bigram_jaccard": 0.1134
+    },
+    {
+      "id": "HOLD26-A07",
+      "declared_existing_ids": [
+        "PORTAL26-A03"
+      ],
+      "nearest_id": "A09",
+      "char_bigram_jaccard": 0.0789
+    },
+    {
+      "id": "HOLD26-A08",
+      "declared_existing_ids": [
+        "U022"
+      ],
+      "nearest_id": "U022",
+      "char_bigram_jaccard": 0.0957
+    },
+    {
+      "id": "HOLD26-A09",
+      "declared_existing_ids": [
+        "U022"
+      ],
+      "nearest_id": "U023",
+      "char_bigram_jaccard": 0.1528
+    },
+    {
+      "id": "HOLD26-A10",
+      "declared_existing_ids": [
+        "A49",
+        "R3-SYN-A-06"
+      ],
+      "nearest_id": "A49",
+      "char_bigram_jaccard": 0.2688
+    },
+    {
+      "id": "HOLD26-A11",
+      "declared_existing_ids": [
+        "U032"
+      ],
+      "nearest_id": "U096",
+      "char_bigram_jaccard": 0.061
+    },
+    {
+      "id": "HOLD26-A12",
+      "declared_existing_ids": [
+        "R3-SYN-A-19"
+      ],
+      "nearest_id": "X40-M06",
+      "char_bigram_jaccard": 0.0957
+    },
+    {
+      "id": "HOLD26-A13",
+      "declared_existing_ids": [
+        "U022"
+      ],
+      "nearest_id": "U023",
+      "char_bigram_jaccard": 0.1014
+    },
+    {
+      "id": "HOLD26-A14",
+      "declared_existing_ids": [
+        "A43"
+      ],
+      "nearest_id": "A24",
+      "char_bigram_jaccard": 0.1
+    },
+    {
+      "id": "HOLD26-A15",
+      "declared_existing_ids": [
+        "A49"
+      ],
+      "nearest_id": "A49",
+      "char_bigram_jaccard": 0.1339
+    },
+    {
+      "id": "HOLD26-A16",
+      "declared_existing_ids": [
+        "A44",
+        "U025"
+      ],
+      "nearest_id": "U096",
+      "char_bigram_jaccard": 0.1111
+    },
+    {
+      "id": "HOLD26-A17",
+      "declared_existing_ids": [
+        "A07",
+        "R3-SYN-A-09"
+      ],
+      "nearest_id": "R3-REAL-A-10",
+      "char_bigram_jaccard": 0.1215
+    },
+    {
+      "id": "HOLD26-A18",
+      "declared_existing_ids": [
+        "U026"
+      ],
+      "nearest_id": "U026",
+      "char_bigram_jaccard": 0.1333
+    },
+    {
+      "id": "HOLD26-A19",
+      "declared_existing_ids": [
+        "A50"
+      ],
+      "nearest_id": "A50",
+      "char_bigram_jaccard": 0.1548
+    },
+    {
+      "id": "HOLD26-A20",
+      "declared_existing_ids": [
+        "A08",
+        "R3-SYN-A-10"
+      ],
+      "nearest_id": "A08",
+      "char_bigram_jaccard": 0.1692
+    },
+    {
+      "id": "HOLD26-A21",
+      "declared_existing_ids": [
+        "R3-SYN-A-16"
+      ],
+      "nearest_id": "A09",
+      "char_bigram_jaccard": 0.1667
+    },
+    {
+      "id": "HOLD26-A22",
+      "declared_existing_ids": [
+        "R3-REAL-A-05",
+        "R3-SYN-A-03"
+      ],
+      "nearest_id": "U096",
+      "char_bigram_jaccard": 0.1452
+    },
+    {
+      "id": "HOLD26-A23",
+      "declared_existing_ids": [
+        "U029"
+      ],
+      "nearest_id": "PORTAL26-A12",
+      "char_bigram_jaccard": 0.1978
+    },
+    {
+      "id": "HOLD26-A24",
+      "declared_existing_ids": [
+        "A51"
+      ],
+      "nearest_id": "A88",
+      "char_bigram_jaccard": 0.0667
+    },
+    {
+      "id": "HOLD26-A25",
+      "declared_existing_ids": [
+        "U028"
+      ],
+      "nearest_id": "R3-REAL-A-01",
+      "char_bigram_jaccard": 0.1538
+    },
+    {
+      "id": "HOLD26-B01",
+      "declared_existing_ids": [
+        "PORTAL26-B03"
+      ],
+      "nearest_id": "M3",
+      "char_bigram_jaccard": 0.125
+    },
+    {
+      "id": "HOLD26-B02",
+      "declared_existing_ids": [
+        "A11"
+      ],
+      "nearest_id": "A64",
+      "char_bigram_jaccard": 0.1169
+    },
+    {
+      "id": "HOLD26-B03",
+      "declared_existing_ids": [
+        "A58",
+        "X40-S04"
+      ],
+      "nearest_id": "X40-S04",
+      "char_bigram_jaccard": 0.1746
+    },
+    {
+      "id": "HOLD26-B04",
+      "declared_existing_ids": [
+        "U037",
+        "PORTAL26-B13"
+      ],
+      "nearest_id": "U037",
+      "char_bigram_jaccard": 0.0923
+    },
+    {
+      "id": "HOLD26-B05",
+      "declared_existing_ids": [
+        "A60",
+        "U039"
+      ],
+      "nearest_id": "A60",
+      "char_bigram_jaccard": 0.1935
+    },
+    {
+      "id": "HOLD26-B06",
+      "declared_existing_ids": [
+        "PORTAL26-B14"
+      ],
+      "nearest_id": "U039",
+      "char_bigram_jaccard": 0.1222
+    },
+    {
+      "id": "HOLD26-B07",
+      "declared_existing_ids": [
+        "A65",
+        "R3-REAL-B-08"
+      ],
+      "nearest_id": "U053",
+      "char_bigram_jaccard": 0.1304
+    },
+    {
+      "id": "HOLD26-B08",
+      "declared_existing_ids": [
+        "U036"
+      ],
+      "nearest_id": "A64",
+      "char_bigram_jaccard": 0.122
+    },
+    {
+      "id": "HOLD26-B09",
+      "declared_existing_ids": [
+        "A60",
+        "PORTAL26-B04"
+      ],
+      "nearest_id": "U042",
+      "char_bigram_jaccard": 0.1905
+    },
+    {
+      "id": "HOLD26-B10",
+      "declared_existing_ids": [
+        "A55"
+      ],
+      "nearest_id": "X40-C05",
+      "char_bigram_jaccard": 0.1485
+    },
+    {
+      "id": "HOLD26-B11",
+      "declared_existing_ids": [
+        "PORTAL26-B14"
+      ],
+      "nearest_id": "U042",
+      "char_bigram_jaccard": 0.1216
+    },
+    {
+      "id": "HOLD26-B12",
+      "declared_existing_ids": [
+        "R3-SYN-B-18"
+      ],
+      "nearest_id": "R3-SYN-B-18",
+      "char_bigram_jaccard": 0.1333
+    },
+    {
+      "id": "HOLD26-B13",
+      "declared_existing_ids": [
+        "A11",
+        "PORTAL26-B08"
+      ],
+      "nearest_id": "PORTAL26-B06",
+      "char_bigram_jaccard": 0.123
+    },
+    {
+      "id": "HOLD26-B14",
+      "declared_existing_ids": [
+        "U042",
+        "A62"
+      ],
+      "nearest_id": "PORTAL26-G01",
+      "char_bigram_jaccard": 0.0877
+    },
+    {
+      "id": "HOLD26-B15",
+      "declared_existing_ids": [
+        "U042",
+        "R3-SYN-B-05"
+      ],
+      "nearest_id": "U042",
+      "char_bigram_jaccard": 0.1111
+    },
+    {
+      "id": "HOLD26-B16",
+      "declared_existing_ids": [
+        "U042",
+        "U039"
+      ],
+      "nearest_id": "PORTAL26-B14",
+      "char_bigram_jaccard": 0.1391
+    },
+    {
+      "id": "HOLD26-B17",
+      "declared_existing_ids": [
+        "U040",
+        "U097",
+        "PORTAL26-B05"
+      ],
+      "nearest_id": "U097",
+      "char_bigram_jaccard": 0.1412
+    },
+    {
+      "id": "HOLD26-B18",
+      "declared_existing_ids": [
+        "A58"
+      ],
+      "nearest_id": "X40-S04",
+      "char_bigram_jaccard": 0.2429
+    },
+    {
+      "id": "HOLD26-B19",
+      "declared_existing_ids": [
+        "A62"
+      ],
+      "nearest_id": "U034",
+      "char_bigram_jaccard": 0.0746
+    },
+    {
+      "id": "HOLD26-B20",
+      "declared_existing_ids": [
+        "A58",
+        "PORTAL26-B02"
+      ],
+      "nearest_id": "X40-M05",
+      "char_bigram_jaccard": 0.1458
+    },
+    {
+      "id": "HOLD26-B21",
+      "declared_existing_ids": [
+        "A14"
+      ],
+      "nearest_id": "A14",
+      "char_bigram_jaccard": 0.1739
+    },
+    {
+      "id": "HOLD26-B22",
+      "declared_existing_ids": [
+        "R3-REAL-B-02"
+      ],
+      "nearest_id": "A66",
+      "char_bigram_jaccard": 0.1094
+    },
+    {
+      "id": "HOLD26-B23",
+      "declared_existing_ids": [
+        "A66",
+        "R3-SYN-B-12"
+      ],
+      "nearest_id": "PORTAL26-B14",
+      "char_bigram_jaccard": 0.125
+    },
+    {
+      "id": "HOLD26-B24",
+      "declared_existing_ids": [
+        "A64"
+      ],
+      "nearest_id": "A64",
+      "char_bigram_jaccard": 0.2188
+    },
+    {
+      "id": "HOLD26-B25",
+      "declared_existing_ids": [
+        "A15",
+        "R3-SYN-B-16"
+      ],
+      "nearest_id": "U035",
+      "char_bigram_jaccard": 0.0847
+    },
+    {
+      "id": "HOLD26-G01",
+      "declared_existing_ids": [
+        "A68"
+      ],
+      "nearest_id": "PORTAL26-G07",
+      "char_bigram_jaccard": 0.0698
+    },
+    {
+      "id": "HOLD26-G02",
+      "declared_existing_ids": [
+        "U050"
+      ],
+      "nearest_id": "U050",
+      "char_bigram_jaccard": 0.1321
+    },
+    {
+      "id": "HOLD26-G03",
+      "declared_existing_ids": [
+        "U052",
+        "U051"
+      ],
+      "nearest_id": "U051",
+      "char_bigram_jaccard": 0.1389
+    },
+    {
+      "id": "HOLD26-G04",
+      "declared_existing_ids": [
+        "U050"
+      ],
+      "nearest_id": "U050",
+      "char_bigram_jaccard": 0.1481
+    },
+    {
+      "id": "HOLD26-G05",
+      "declared_existing_ids": [
+        "PORTAL26-G17",
+        "A72"
+      ],
+      "nearest_id": "A72",
+      "char_bigram_jaccard": 0.1642
+    },
+    {
+      "id": "HOLD26-G06",
+      "declared_existing_ids": [
+        "PORTAL26-G06"
+      ],
+      "nearest_id": "U047",
+      "char_bigram_jaccard": 0.122
+    },
+    {
+      "id": "HOLD26-G07",
+      "declared_existing_ids": [
+        "U052",
+        "U051"
+      ],
+      "nearest_id": "U052",
+      "char_bigram_jaccard": 0.1429
+    },
+    {
+      "id": "HOLD26-G08",
+      "declared_existing_ids": [
+        "PORTAL26-G06"
+      ],
+      "nearest_id": "PORTAL26-G07",
+      "char_bigram_jaccard": 0.0928
+    },
+    {
+      "id": "HOLD26-G09",
+      "declared_existing_ids": [
+        "U044"
+      ],
+      "nearest_id": "U044",
+      "char_bigram_jaccard": 0.2055
+    },
+    {
+      "id": "HOLD26-G10",
+      "declared_existing_ids": [
+        "U051"
+      ],
+      "nearest_id": "U052",
+      "char_bigram_jaccard": 0.1235
+    },
+    {
+      "id": "HOLD26-G11",
+      "declared_existing_ids": [
+        "R3-SYN-G-14"
+      ],
+      "nearest_id": "U089",
+      "char_bigram_jaccard": 0.1029
+    },
+    {
+      "id": "HOLD26-G12",
+      "declared_existing_ids": [
+        "PORTAL26-G17"
+      ],
+      "nearest_id": "U013",
+      "char_bigram_jaccard": 0.1127
+    },
+    {
+      "id": "HOLD26-G13",
+      "declared_existing_ids": [
+        "A18"
+      ],
+      "nearest_id": "A18",
+      "char_bigram_jaccard": 0.2073
+    },
+    {
+      "id": "HOLD26-G14",
+      "declared_existing_ids": [
+        "U053"
+      ],
+      "nearest_id": "X40-S05",
+      "char_bigram_jaccard": 0.1127
+    },
+    {
+      "id": "HOLD26-G15",
+      "declared_existing_ids": [
+        "A69"
+      ],
+      "nearest_id": "X40-M07",
+      "char_bigram_jaccard": 0.0932
+    },
+    {
+      "id": "HOLD26-G16",
+      "declared_existing_ids": [
+        "PORTAL26-G06",
+        "U047"
+      ],
+      "nearest_id": "PORTAL26-G06",
+      "char_bigram_jaccard": 0.1171
+    },
+    {
+      "id": "HOLD26-G17",
+      "declared_existing_ids": [
+        "A75",
+        "U095"
+      ],
+      "nearest_id": "U095",
+      "char_bigram_jaccard": 0.1047
+    },
+    {
+      "id": "HOLD26-G18",
+      "declared_existing_ids": [
+        "A70"
+      ],
+      "nearest_id": "A70",
+      "char_bigram_jaccard": 0.125
+    },
+    {
+      "id": "HOLD26-G19",
+      "declared_existing_ids": [
+        "R3-SYN-G-19"
+      ],
+      "nearest_id": "A84",
+      "char_bigram_jaccard": 0.1
+    },
+    {
+      "id": "HOLD26-G20",
+      "declared_existing_ids": [
+        "PORTAL26-G12"
+      ],
+      "nearest_id": "PORTAL26-P19",
+      "char_bigram_jaccard": 0.1188
+    },
+    {
+      "id": "HOLD26-G21",
+      "declared_existing_ids": [
+        "A76"
+      ],
+      "nearest_id": "A76",
+      "char_bigram_jaccard": 0.0938
+    },
+    {
+      "id": "HOLD26-G22",
+      "declared_existing_ids": [
+        "U052",
+        "U100",
+        "U051"
+      ],
+      "nearest_id": "U100",
+      "char_bigram_jaccard": 0.1481
+    },
+    {
+      "id": "HOLD26-G23",
+      "declared_existing_ids": [
+        "A20",
+        "X40-T08"
+      ],
+      "nearest_id": "X40-T05",
+      "char_bigram_jaccard": 0.1176
+    },
+    {
+      "id": "HOLD26-G24",
+      "declared_existing_ids": [
+        "A76"
+      ],
+      "nearest_id": "U096",
+      "char_bigram_jaccard": 0.1429
+    },
+    {
+      "id": "HOLD26-G25",
+      "declared_existing_ids": [
+        "PORTAL26-G01"
+      ],
+      "nearest_id": "U050",
+      "char_bigram_jaccard": 0.1
+    },
+    {
+      "id": "HOLD26-Y01",
+      "declared_existing_ids": [
+        "A80"
+      ],
+      "nearest_id": "A80",
+      "char_bigram_jaccard": 0.1746
+    },
+    {
+      "id": "HOLD26-Y02",
+      "declared_existing_ids": [
+        "A21"
+      ],
+      "nearest_id": "X40-S07",
+      "char_bigram_jaccard": 0.3696
+    },
+    {
+      "id": "HOLD26-Y03",
+      "declared_existing_ids": [
+        "PORTAL26-Y04"
+      ],
+      "nearest_id": "PORTAL26-Y01",
+      "char_bigram_jaccard": 0.122
+    },
+    {
+      "id": "HOLD26-Y04",
+      "declared_existing_ids": [
+        "A80"
+      ],
+      "nearest_id": "A80",
+      "char_bigram_jaccard": 0.1818
+    },
+    {
+      "id": "HOLD26-Y05",
+      "declared_existing_ids": [
+        "U055"
+      ],
+      "nearest_id": "U055",
+      "char_bigram_jaccard": 0.2857
+    },
+    {
+      "id": "HOLD26-Y06",
+      "declared_existing_ids": [
+        "A80"
+      ],
+      "nearest_id": "A80",
+      "char_bigram_jaccard": 0.1233
+    },
+    {
+      "id": "HOLD26-Y07",
+      "declared_existing_ids": [
+        "A81"
+      ],
+      "nearest_id": "A80",
+      "char_bigram_jaccard": 0.1579
+    },
+    {
+      "id": "HOLD26-Y08",
+      "declared_existing_ids": [
+        "A81"
+      ],
+      "nearest_id": "PORTAL26-Y10",
+      "char_bigram_jaccard": 0.1038
+    },
+    {
+      "id": "HOLD26-Y09",
+      "declared_existing_ids": [
+        "U056"
+      ],
+      "nearest_id": "U059",
+      "char_bigram_jaccard": 0.1014
+    },
+    {
+      "id": "HOLD26-Y10",
+      "declared_existing_ids": [
+        "A87"
+      ],
+      "nearest_id": "A87",
+      "char_bigram_jaccard": 0.129
+    },
+    {
+      "id": "HOLD26-Y11",
+      "declared_existing_ids": [
+        "PORTAL26-Y12"
+      ],
+      "nearest_id": "R3-SYN-Y-04",
+      "char_bigram_jaccard": 0.1507
+    },
+    {
+      "id": "HOLD26-Y12",
+      "declared_existing_ids": [
+        "A24",
+        "U060"
+      ],
+      "nearest_id": "X40-M06",
+      "char_bigram_jaccard": 0.1122
+    },
+    {
+      "id": "HOLD26-Y13",
+      "declared_existing_ids": [
+        "A81",
+        "A80"
+      ],
+      "nearest_id": "A80",
+      "char_bigram_jaccard": 0.1325
+    },
+    {
+      "id": "HOLD26-Y14",
+      "declared_existing_ids": [
+        "PORTAL26-Y10"
+      ],
+      "nearest_id": "PORTAL26-Y10",
+      "char_bigram_jaccard": 0.1845
+    },
+    {
+      "id": "HOLD26-Y15",
+      "declared_existing_ids": [
+        "R3-SYN-Y-13"
+      ],
+      "nearest_id": "U033",
+      "char_bigram_jaccard": 0.1143
+    },
+    {
+      "id": "HOLD26-Y16",
+      "declared_existing_ids": [
+        "A83"
+      ],
+      "nearest_id": "A22",
+      "char_bigram_jaccard": 0.1944
+    },
+    {
+      "id": "HOLD26-Y17",
+      "declared_existing_ids": [
+        "A85"
+      ],
+      "nearest_id": "R3-REAL-Y-08",
+      "char_bigram_jaccard": 0.1412
+    },
+    {
+      "id": "HOLD26-Y18",
+      "declared_existing_ids": [
+        "PORTAL26-Y13"
+      ],
+      "nearest_id": "PORTAL26-A15",
+      "char_bigram_jaccard": 0.1548
+    },
+    {
+      "id": "HOLD26-Y19",
+      "declared_existing_ids": [
+        "A82",
+        "R3-SYN-Y-17"
+      ],
+      "nearest_id": "A82",
+      "char_bigram_jaccard": 0.3333
+    },
+    {
+      "id": "HOLD26-Y20",
+      "declared_existing_ids": [
+        "PORTAL26-Y08"
+      ],
+      "nearest_id": "A89",
+      "char_bigram_jaccard": 0.127
+    },
+    {
+      "id": "HOLD26-Y21",
+      "declared_existing_ids": [
+        "U056"
+      ],
+      "nearest_id": "U056",
+      "char_bigram_jaccard": 0.1846
+    },
+    {
+      "id": "HOLD26-Y22",
+      "declared_existing_ids": [
+        "R3-SYN-Y-16"
+      ],
+      "nearest_id": "PORTAL26-P19",
+      "char_bigram_jaccard": 0.1395
+    },
+    {
+      "id": "HOLD26-Y23",
+      "declared_existing_ids": [
+        "A89"
+      ],
+      "nearest_id": "A89",
+      "char_bigram_jaccard": 0.1159
+    },
+    {
+      "id": "HOLD26-Y24",
+      "declared_existing_ids": [
+        "R3-REAL-Y-12"
+      ],
+      "nearest_id": "R3-REAL-B-13",
+      "char_bigram_jaccard": 0.1023
+    },
+    {
+      "id": "HOLD26-Y25",
+      "declared_existing_ids": [
+        "PORTAL26-Y08"
+      ],
+      "nearest_id": "R3-SYN-G-14",
+      "char_bigram_jaccard": 0.12
+    },
+    {
+      "id": "HOLD26-S01",
+      "declared_existing_ids": [
+        "A95"
+      ],
+      "nearest_id": "A09",
+      "char_bigram_jaccard": 0.1711
+    },
+    {
+      "id": "HOLD26-S02",
+      "declared_existing_ids": [
+        "R3-SYN-S-17",
+        "A28"
+      ],
+      "nearest_id": "A28",
+      "char_bigram_jaccard": 0.1129
+    },
+    {
+      "id": "HOLD26-S03",
+      "declared_existing_ids": [
+        "R3-SYN-S-06",
+        "A92"
+      ],
+      "nearest_id": "A92",
+      "char_bigram_jaccard": 0.1556
+    },
+    {
+      "id": "HOLD26-S04",
+      "declared_existing_ids": [
+        "A26",
+        "R3-SYN-S-11"
+      ],
+      "nearest_id": "X40-S10",
+      "char_bigram_jaccard": 0.1408
+    },
+    {
+      "id": "HOLD26-S05",
+      "declared_existing_ids": [
+        "A28"
+      ],
+      "nearest_id": "A28",
+      "char_bigram_jaccard": 0.1579
+    },
+    {
+      "id": "HOLD26-S06",
+      "declared_existing_ids": [
+        "PORTAL26-S04"
+      ],
+      "nearest_id": "PORTAL26-S04",
+      "char_bigram_jaccard": 0.125
+    },
+    {
+      "id": "HOLD26-S07",
+      "declared_existing_ids": [
+        "R3-SYN-S-13",
+        "A95"
+      ],
+      "nearest_id": "A95",
+      "char_bigram_jaccard": 0.3056
+    },
+    {
+      "id": "HOLD26-S08",
+      "declared_existing_ids": [
+        "R3-SYN-S-06",
+        "A92"
+      ],
+      "nearest_id": "A92",
+      "char_bigram_jaccard": 0.1562
+    },
+    {
+      "id": "HOLD26-S09",
+      "declared_existing_ids": [
+        "U064"
+      ],
+      "nearest_id": "U064",
+      "char_bigram_jaccard": 0.0854
+    },
+    {
+      "id": "HOLD26-S10",
+      "declared_existing_ids": [
+        "R3-SYN-S-03"
+      ],
+      "nearest_id": "R3-SYN-S-03",
+      "char_bigram_jaccard": 0.1765
+    },
+    {
+      "id": "HOLD26-S11",
+      "declared_existing_ids": [
+        "A93",
+        "R3-SYN-S-09"
+      ],
+      "nearest_id": "A93",
+      "char_bigram_jaccard": 0.2125
+    },
+    {
+      "id": "HOLD26-S12",
+      "declared_existing_ids": [
+        "PORTAL26-S06",
+        "A26"
+      ],
+      "nearest_id": "A26",
+      "char_bigram_jaccard": 0.0959
+    },
+    {
+      "id": "HOLD26-S13",
+      "declared_existing_ids": [
+        "A29"
+      ],
+      "nearest_id": "A29",
+      "char_bigram_jaccard": 0.1744
+    },
+    {
+      "id": "HOLD26-S14",
+      "declared_existing_ids": [
+        "PORTAL26-S09",
+        "A93"
+      ],
+      "nearest_id": "A93",
+      "char_bigram_jaccard": 0.1313
+    },
+    {
+      "id": "HOLD26-S15",
+      "declared_existing_ids": [
+        "A91",
+        "R3-SYN-S-01"
+      ],
+      "nearest_id": "R3-REAL-S-11",
+      "char_bigram_jaccard": 0.1154
+    },
+    {
+      "id": "HOLD26-S16",
+      "declared_existing_ids": [
+        "PORTAL26-S11",
+        "PORTAL26-S02"
+      ],
+      "nearest_id": "R3-SYN-S-14",
+      "char_bigram_jaccard": 0.1415
+    },
+    {
+      "id": "HOLD26-S17",
+      "declared_existing_ids": [
+        "U064"
+      ],
+      "nearest_id": "U064",
+      "char_bigram_jaccard": 0.1311
+    },
+    {
+      "id": "HOLD26-S18",
+      "declared_existing_ids": [
+        "X40-C10",
+        "A27"
+      ],
+      "nearest_id": "A27",
+      "char_bigram_jaccard": 0.2
+    },
+    {
+      "id": "HOLD26-S19",
+      "declared_existing_ids": [
+        "PORTAL26-S08"
+      ],
+      "nearest_id": "PORTAL26-S08",
+      "char_bigram_jaccard": 0.1622
+    },
+    {
+      "id": "HOLD26-S20",
+      "declared_existing_ids": [
+        "PORTAL26-S07"
+      ],
+      "nearest_id": "PORTAL26-S07",
+      "char_bigram_jaccard": 0.2
+    },
+    {
+      "id": "HOLD26-S21",
+      "declared_existing_ids": [
+        "R3-SYN-S-17",
+        "A28"
+      ],
+      "nearest_id": "A28",
+      "char_bigram_jaccard": 0.1311
+    },
+    {
+      "id": "HOLD26-S22",
+      "declared_existing_ids": [
+        "A95"
+      ],
+      "nearest_id": "R3-SYN-S-13",
+      "char_bigram_jaccard": 0.141
+    },
+    {
+      "id": "HOLD26-S23",
+      "declared_existing_ids": [
+        "R3-REAL-S-07"
+      ],
+      "nearest_id": "X40-S06",
+      "char_bigram_jaccard": 0.0923
+    },
+    {
+      "id": "HOLD26-S24",
+      "declared_existing_ids": [
+        "R3-SYN-S-08"
+      ],
+      "nearest_id": "R3-REAL-S-09",
+      "char_bigram_jaccard": 0.125
+    },
+    {
+      "id": "HOLD26-S25",
+      "declared_existing_ids": [
+        "U068"
+      ],
+      "nearest_id": "U099",
+      "char_bigram_jaccard": 0.0714
+    }
+  ],
+  "limitations": [
+    "Lexical similarity is a flag, not proof of semantic independence. AI reviewers compared requested facts/conditions against old549.",
+    "Fixed source overlap is expected; this is new-question evaluation in the same six-ordinance domain.",
+    "AI cross-review is not human/legal expert verification or a guarantee of zero label error.",
+    "No model answers or correctness rates were used to select or remove questions.",
+    "No performance score, latency or end-to-end service result has been measured on this set."
+  ],
+  "draft_hashes_at_packaging": {
+    "P": "852ab35440dce73b7f85caaaa6b8bd347b6b4ab3b08788b56f2a4023ba69c186",
+    "A": "6178e1c1fe8e2040cce0d161760938df9957f70bfa21f98359811472c9195414",
+    "B": "2d1e253e262b4a5b24741439bc9bbbb1837e343ed782b1e379ef647a3b87e427",
+    "G": "ee82dc991aa55932d05fa8da52e4a5f0c56297b5664e5353c2b4656de06b338d",
+    "Y": "67c1b63f33f7636148896e264da1566ee690b75f8f448a7d9111b259565afa29",
+    "S": "5f92543f66c350eadcd8b4c5fcd25e6aa917ff87c5189ee63f5777c7b5388214"
+  }
+}

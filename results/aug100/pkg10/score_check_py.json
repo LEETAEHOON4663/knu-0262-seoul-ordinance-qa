@@ -1,0 +1,19 @@
+{
+ "main_score_sum_over_total": 1.0,
+ "total": 100,
+ "executed": 100,
+ "not_run": 0,
+ "with_gold": {
+  "n": 83,
+  "mean": 1.0
+ },
+ "no_gold": {
+  "n": 17,
+  "mean": 1.0
+ },
+ "errors": 0,
+ "timeouts_over_90s": 0,
+ "shape_fail": 0,
+ "over_abstain_with_gold": 0,
+ "note": "부분 실행이면 main_score는 전체 점수가 아니다(not_run 확인)."
+}

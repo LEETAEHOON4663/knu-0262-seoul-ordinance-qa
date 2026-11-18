@@ -1,0 +1,12 @@
+{
+ "mode": "live",
+ "runtime_dir": "runtime_pkg11",
+ "budget_cap_usd": 0.8,
+ "port": 8060,
+ "context_budget_chars": 10000,
+ "max_concurrent_requests": 4,
+ "request_deadline_seconds": 87.0,
+ "pipeline_profile": "pkg",
+ "review_model": "solar-pro4",
+ "review_max_tokens": 1200
+}

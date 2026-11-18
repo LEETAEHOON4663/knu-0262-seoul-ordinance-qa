@@ -1,0 +1,75 @@
+{
+  "dataset": "HOLD150",
+  "release_date_kst": "2026-11-17",
+  "status": "AI-reviewed candidate; no system evaluation",
+  "ordinances_sha256": "17902a62fe52562092d47db975a78c472462f03a6cae22d6fe589feb7c3e39cb",
+  "source_archive_sha256": "236ec85cf93e9e184d40c79630cfb0826c15f3d3961b32db9bd53850a19a62ec",
+  "input_files": {
+    "existing_questions549.json": "bc78510a039a7fbb028f2b486640c47ab8a07cd121c4dbce4f1f22bcfdf49d4e",
+    "GPT_DATASET_REQUEST_HOLD150.md": "5e08711e6d29cbc353be1f905b6c34d6c72e5628726141fe05531269e5b4719b",
+    "check.py": "4fcc483fefdca00f2233ee6849c8b145c4e76a179a67045634a0e0a7707abc81",
+    "schema_example.json": "de2ffaffb33ec19dca4e40a932327c4d0a45b7a1f203f8f5050a21a20b5eef72",
+    "materials/ordinances.json": "17902a62fe52562092d47db975a78c472462f03a6cae22d6fe589feb7c3e39cb",
+    "materials/annex_files/2171767_별표.hwp": "17868a4405cbcd9e8d02870f0dcc0b90c4958b21e491bb625821aaf8558ffb23",
+    "materials/annex_files/2147709_별표5.hwp": "b1aea6104f480eaf15d9d0f19fb46705759135469b138733fa5abfeaf40b9c19",
+    "materials/annex_files/2147709_별표6.hwp": "e86b3a386bd6232d677c75f5dbfab3c97158b091eb72977fe09f206887daa824",
+    "materials/annex_files/2171833_별표1.hwp": "7f798fd459fc1ffaaaa8c39cab6ed3145243bc77bd1d8a8dde7275f212c18ad1",
+    "materials/annex_files/2171833_별표2.hwp": "40d29bd52babffb75e7274221c360e3ecdb70d9c8afe58670ef42e8dc5e4fc78",
+    "materials/annex_files/2171833_별표3.hwp": "1fddd0a4f44fbf7eb89378249cc5129be178ce5b2c1d3dff1aa5b8a6f9d8c94e",
+    "materials/annex_files/2171833_별표4.hwp": "5c4c566e4faf7fa60ed51ea334b43859aa06cad1a4c870d9ff374695b19c05b9",
+    "materials/annex_files/2147709_별표2.hwp": "c1875fc6754ebe5ea42b63aace1a4f9fed58f290aef98cd7f16e75877ea3976e",
+    "materials/annex_files/2147709_별표1.hwp": "68ae98072a0f30f12d8b0ac7054e67434c3e488d5afb66778e79d05c842053cc",
+    "materials/annex_files/2147709_별표3.hwp": "f839cbca5f5a4199de7b96dcf35701de287a89225ea88bc839a9e384a40d4283",
+    "materials/annex/2171833_별표2.md": "efbb702111f3deda01b471d11d9ec5f360313527bdb1b405fa9955f6c0d1c484",
+    "materials/annex/2171833_별표1.md": "8a538761a81b83df0b4b6e1bae49547dfcb5566071cac5bc6c3800beca6172db",
+    "materials/annex/2171767_별표.md": "c09df9a186d3701d6d5d91bfe5da4b63ab10eceda1f3b367a068f03a67c39bc0",
+    "materials/annex/2147709_별표1.md": "190e18b72a7326797781fe7a316a7a315de2ad0ac690cb1aa59562daa4fff3b4",
+    "materials/annex/2147709_별표3.md": "6c7a6b4d6eb412096fbff56a247cb278b4d0e3641340ef6a64ee493f9e61ac67",
+    "materials/annex/2147709_별표6.md": "317545e1a9b19a295c9698ee5debe5561c9dd6a6f1d0e62a6972c36237bc6ee2",
+    "materials/annex/2147709_별표2.md": "e7ae01e44da27318456e0262823c4b4fe6dd3af76ced2bef020f8021d1492ba4",
+    "materials/annex/2171833_별표3.md": "9c8231ef617f61f6269f04b561870bdb3df037a4900818ae12e291a56457b313",
+    "materials/annex/2147709_별표5.md": "d197e29158e2d1e833973d19133c9e92ec5ff3b29e10ab57986844a6bab6261e",
+    "materials/annex/2171833_별표4.md": "5ff897b6d27491133e7cd046bcd1b8f224969fb2a5d50c4c084e0c9d37bc2eaf",
+    "materials/raw/2171829.xml": "ed35e38b11f0fd5ee2d1b17f6b096d509496f32447967106e4687eaab3ced7fa",
+    "materials/raw/2054497.xml": "62e21c6a53507d184e6f66d628b7addfd0d88d53e1821e338a5053a0c365ff2a",
+    "materials/raw/2171803.xml": "429170cc5bfcd47acb16e7e3205e48347d698aa182176f5d1c2dda2dd07a06d5",
+    "materials/raw/2147709.xml": "1af2923e532fef4f192d3501901652bbf781d4c23fe9055a2e71bcd1b55b202f",
+    "materials/raw/2171833.xml": "b6386e7889e5d094fee87cb670510c447a87ba39be09201c3cdc69788c4ff375",
+    "materials/raw/2171767.xml": "9fbf35b3484fed1ee0e0c6e3486b89f49bae4c112ff01b0da7834dd749d03d7d"
+  },
+  "files": {
+    "README.md": {
+      "sha256": "04e9fd565634ce09af311fecc29b28d6d506197daaf9244749855db87db70305",
+      "bytes": 5682
+    },
+    "audit150.json": {
+      "sha256": "5af4cdda9bd6807b3311f23d2258e705af5062d3fb73baafc7efbe76b98828e0",
+      "bytes": 347208
+    },
+    "cross_review150.json": {
+      "sha256": "20b87e2108d3e9f702366ebbb7f6e31329a147c53772955f9da168c621f667d8",
+      "bytes": 881276
+    },
+    "eval150.json": {
+      "sha256": "6bc25624543b5e4bb213aefc263be9d093da4e694e866bc1665c0998d0466ef0",
+      "bytes": 75329
+    },
+    "questions150.md": {
+      "sha256": "fdc20b5740615cb455145f25c63e03952b7f5a1f8e7c4ac3b788731329aedcc0",
+      "bytes": 30649
+    },
+    "questions_only150.json": {
+      "sha256": "a6a9ad25609d2bd3ea669b2ab2d0f67599e7e9671ab92c79c241c5640aada65e",
+      "bytes": 35206
+    },
+    "review150.md": {
+      "sha256": "a1f270def61e8c783b626c1dec6ae93da3b7c4c8a58455fb807699cb8e6c92c9",
+      "bytes": 298703
+    },
+    "validation.json": {
+      "sha256": "bdc90114a34bb2b58575f6eeb607b616d1420c8e010deb4551daafbeda3f592c",
+      "bytes": 35026
+    }
+  },
+  "note": "Manifest excludes its own hash. All other payload files are included."
+}
