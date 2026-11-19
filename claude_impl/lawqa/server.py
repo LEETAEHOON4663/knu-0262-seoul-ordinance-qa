@@ -21,6 +21,13 @@ from pathlib import Path
 from .contracts import UNKNOWN
 
 MAX_BODY = 16384
+DRAIN_LIMIT = 1 << 20   # 이보다 큰 본문은 끝까지 읽지 않고 연결을 닫는다
+
+
+def _route(path):
+    """경로만 남긴다: 쿼리·조각을 떼고 끝의 '/'를 없앤다('/ask/', '/ask?x=1' → '/ask', '' → '/')."""
+    p = (path or "/").split("?", 1)[0].split("#", 1)[0]
+    return p.rstrip("/") or "/"
 
 
 def make_handler(pipeline, cfg):
@@ -81,11 +88,69 @@ def make_handler(pipeline, cfg):
             self.send_response(status)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.send_header("Content-Length", str(len(data)))
+            if self.close_connection:
+                self.send_header("Connection", "close")
             self.end_headers()
             self.wfile.write(data)
 
+        def send_error(self, code, message=None, explain=None):
+            """HTTP 해석 오류(요청 줄 깨짐, 지원하지 않는 메서드 등)도 HTML이 아니라 JSON으로 답하고 연결을 닫는다."""
+            self.close_connection = True
+            try:
+                self._send(code, {"error": "bad_http_request" if code < 500 else "unsupported"})
+            except Exception:  # noqa: BLE001  연결이 이미 끊긴 경우
+                pass
+
+        def _read_body(self):
+            """요청 본문을 끝까지 읽는다(Content-Length 또는 chunked). (bytes|None, 오류 코드|None).
+
+            응답 전에 본문을 반드시 비운다. 남겨 두면 같은 연결(keep-alive, 터널의 연결 공유)로 오는 다음 요청이
+            남은 본문과 섞여 깨진다(2026-11-19 공개 주소에서 실제로 확인). 끝까지 읽을 수 없으면 연결을 닫는다."""
+            if "chunked" in (self.headers.get("Transfer-Encoding") or "").lower():
+                data = bytearray()
+                try:
+                    while True:
+                        line = self.rfile.readline(1024)
+                        if not line:
+                            self.close_connection = True
+                            return None, "body_incomplete"
+                        size = int(line.split(b";", 1)[0].strip() or b"0", 16)
+                        if size == 0:
+                            while self.rfile.readline(1024) not in (b"\r\n", b"\n", b""):
+                                pass                      # 트레일러 줄을 건너뛴다
+                            break
+                        if len(data) + size > DRAIN_LIMIT:
+                            self.close_connection = True
+                            return None, "body_size"
+                        data += self.rfile.read(size)
+                        self.rfile.readline(8)           # 조각 뒤의 CRLF
+                except (ValueError, OSError):
+                    self.close_connection = True
+                    return None, "bad_chunked"
+                return (None, "body_size") if len(data) > MAX_BODY else (bytes(data), None)
+            raw_len = self.headers.get("Content-Length")
+            if raw_len is None:
+                return b"", None
+            try:
+                length = int(raw_len)
+            except ValueError:
+                self.close_connection = True
+                return None, "bad_content_length"
+            if length < 0 or length > DRAIN_LIMIT:
+                self.close_connection = True
+                return None, "body_size" if length > 0 else "bad_content_length"
+            data = self.rfile.read(length) if length else b""
+            if len(data) < length:
+                self.close_connection = True
+                return None, "body_incomplete"
+            return (None, "body_size") if length > MAX_BODY else (data, None)
+
         def do_GET(self):
-            if self.path == "/health":
+            try:
+                self._read_body()                 # GET에 본문이 붙어 와도 연결에 남기지 않는다
+            except Exception:  # noqa: BLE001
+                self.close_connection = True
+            if _route(self.path) == "/health":
                 with stats_lock:
                     snap = dict(stats)
                 self._send(200, {"status": "ok", "mode": cfg.mode, "verification": snap})
@@ -101,10 +166,17 @@ def make_handler(pipeline, cfg):
 
         def do_POST(self):
             received = time.monotonic()
-            if self.path != "/ask":
+            try:
+                raw, err = self._read_body()      # 어떤 응답이든 보내기 전에 본문부터 비운다
+            except Exception:  # noqa: BLE001
+                self.close_connection = True
+                raw, err = None, "body_read_error"
+            path = _route(self.path)
+            # '/ask/', '/ask?…'도 /ask로 받는다. 제출 모드에서는 루트('/')도 /ask로 받는다(주소를 루트로 적은 경우 대비).
+            if path != "/ask" and not (fallback and path == "/"):
                 return self._send(404, {"error": "not_found"})
             try:
-                return self._ask(received)
+                return self._ask(received, raw, err)
             except Exception as e:  # noqa: BLE001  예상 못 한 예외에도 응답은 낸다
                 if not fallback:
                     raise
@@ -113,15 +185,13 @@ def make_handler(pipeline, cfg):
                 except Exception:  # noqa: BLE001  연결이 이미 끊긴 경우 등
                     return None
 
-        def _ask(self, received):
-            try:
-                length = int(self.headers.get("Content-Length", "0"))
-            except ValueError:
-                return self._fail(400, "bad_content_length", received=received)
-            if length <= 0 or length > MAX_BODY:
+        def _ask(self, received, raw, err):
+            if err:
+                return self._fail(400, err, received=received)
+            if not raw:
                 return self._fail(400, "body_size", received=received)
             try:
-                body = json.loads(self.rfile.read(length).decode("utf-8"))
+                body = json.loads(raw.decode("utf-8-sig"))   # 앞에 BOM이 붙은 본문도 받는다
             except (UnicodeDecodeError, ValueError):
                 return self._fail(400, "invalid_json", received=received)
             q = body.get("question") if isinstance(body, dict) else None

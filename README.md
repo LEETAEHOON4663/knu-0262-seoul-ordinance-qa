@@ -16,6 +16,7 @@
 |---|---|
 | 오류도 정해진 JSON으로 | 설정 `submission_abstain_on_error: true`이면, `POST /ask`가 운영 오류(API 실패·429·시간 초과·대기 초과)와 잘못된 입력, 예상 못 한 예외에도 HTTP 200과 `{"answer":"확인 불가","citation":[],"source_url":"","effective_date":""}`를 돌려줍니다. 원인은 `runtime/submit/traces`와 `GET /health`의 `fallback_abstain`에 남습니다 |
 | 외부 접속 | 제출 설정은 `host` 0.0.0.0, `port` 8000. `--host`와 `--port`로 바꿀 수 있습니다 |
+| 연결 안정성(2026-11-19) | 모든 요청은 응답 전에 본문을 끝까지 읽습니다(Content-Length, chunked). 잘못된 경로나 너무 큰 본문이 같은 연결의 다음 요청을 깨뜨리던 문제를 고쳤습니다. 이 문제는 터널이 연결을 나눠 쓸 때 실제로 확인했습니다. HTTP 해석 오류도 JSON으로 답합니다. `/ask/`, `/ask?…`도 받고, 제출 모드에서는 `POST /`도 `/ask`로 받습니다 |
 | 예산 상한 | 제출 설정은 10달러입니다(실행 폴더 누적, 문항당 약 0.003~0.0034달러) |
 | 키 | 설정의 `api_key_file` → 환경변수 `UPSTAGE_API_KEY` → `claude_impl/.env` → 루트 `.env` 순서로 찾습니다. `.env`는 올리지 않습니다(`.gitignore`) |
 
