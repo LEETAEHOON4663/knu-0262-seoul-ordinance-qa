@@ -11,10 +11,11 @@ import copy
 import json
 import re
 import time
+from concurrent.futures import ThreadPoolExecutor
 
 from . import contracts, pkg_prompts as PP
 from .contracts import ContractError, loads_strict, require
-from .llm import CallError
+from .llm import TRUNCATED, CallError
 from .pipeline import Pipeline
 from .pkg_runtime import PropIndex
 from .pkg_verify import AnswerVerifier
@@ -131,7 +132,33 @@ class PkgPipeline(Pipeline):
         # 카드에 보여 준 id(본문 카드에 딸린 단서 id 포함)는 모두 고를 수 있다.
         allowed = {c["id"] for c in cards} | {c["proviso"]["id"] for c in cards if "proviso" in c}
         n = len(frame["requests"])
-        body = contracts.chat_body(self.cfg.answer_model, PP.SELECT_SYSTEM,
+        if self.cfg.pkg_scope_select:
+            body = contracts.chat_body(self.cfg.answer_model,
+                                       PP.SELECT_SCOPE_SYSTEM_V2 if self.cfg.pkg_scope_advisory else PP.SELECT_SCOPE_SYSTEM,
+                                       {"question": question, "requests": request_wire(frame["requests"]),
+                                        "aspects": list(PP.SCOPE_ASPECTS), "cards": cards},
+                                       PP.select_scope_schema(n), "pkg_select_scope", self.cfg.select_max_tokens)
+
+            def parse_scope(raw):
+                v = loads_strict(raw)
+                require(isinstance(v, dict) and set(v) == {"a_requests"}, "select_fields")
+                reqs = v["a_requests"]
+                require(isinstance(reqs, list), "select_count")
+                for r in reqs:
+                    require(isinstance(r, dict) and set(r) == {"a_request", "b_object", "c_aspect", "d_ids", "e_scope"},
+                            "select_item")
+                    require(r["e_scope"] in PP.SCOPE_VERDICTS, "select_scope_value")
+                check_request_ids(reqs, frame["requests"], "select")
+                out = []
+                for i, (r, text) in enumerate(zip(reqs, frame["requests"]), 1):
+                    ids = parse_ids(r["d_ids"], allowed, "select") \
+                        if (r["e_scope"] == "MATCH" or self.cfg.pkg_scope_advisory) else []
+                    scope = r["e_scope"] if (ids or r["e_scope"] != "MATCH") else "NO_OBJECT"  # 근거 없는 MATCH는 인정 안 함
+                    out.append({"id": f"R{i}", "request": text, "ids": ids, "scope": scope,
+                                "object": str(r["b_object"])[:160], "aspect": r["c_aspect"]})
+                return out
+            return self._structured("select", body, parse_scope, deadline, tr, state, PP.REPAIR_TEMPLATE)
+        body = contracts.chat_body(self.cfg.answer_model, PP.select_system(self.cfg.pkg_delegation_answers, self.cfg.pkg_topic_rule),
                                    {"question": question, "requests": request_wire(frame["requests"]), "cards": cards},
                                    PP.select_schema(n), "pkg_select", self.cfg.select_max_tokens)
 
@@ -151,9 +178,17 @@ class PkgPipeline(Pipeline):
             return out
         return self._structured("select", body, parse, deadline, tr, state, PP.REPAIR_TEMPLATE)
 
-    def _generate_body(self, question, frame, sources, draft=None, issues=None):
-        value = {"question": question, "requests": request_wire(frame["requests"]), "sources": sources}
-        base = PP.generate_system(self.cfg.pkg_generate_external_rule)
+    def _generate_body(self, question, frame, sources, draft=None, issues=None, scopes=None):
+        reqs = request_wire(frame["requests"])
+        if scopes:
+            reqs = [dict(r, scope=sc) for r, sc in zip(reqs, scopes)]
+        value = {"question": question, "requests": reqs, "sources": sources}
+        base = PP.generate_system(self.cfg.pkg_generate_external_rule, self.cfg.pkg_delegation_answers,
+                                   self.cfg.pkg_topic_rule)
+        if scopes:
+            base += PP.GENERATE_SCOPE_ADDENDUM_V2 if self.cfg.pkg_scope_advisory else PP.GENERATE_SCOPE_ADDENDUM
+        if self.cfg.pkg_boundary_examples:
+            base += PP.BOUNDARY_EXAMPLES
         system, name = base, "pkg_generate"
         if draft is not None:
             value["draft"] = draft["wire"]
@@ -164,7 +199,8 @@ class PkgPipeline(Pipeline):
 
     @staticmethod
     def parse_generate(raw, allowed: set, requests: list[str] | None = None, strict: bool = False,
-                       background: list[bool] | None = None) -> dict:
+                       background: list[bool] | None = None, missing_bases: tuple = PP.BASIS_MISSING,
+                       partial: bool = False) -> dict:
         """요청별: 묻는 값(b_asked) → 원문 지위(c_basis) → 주장 → 상태.
         상태는 원문 지위와 맞아야 한다(F15): 원문이 묻는 값·판정을 주지 않는다고 스스로 판정한 요청
         (SILENT·DELEGATED·EXTERNAL)을 ANSWERED로 내면 핵심 근거 부족으로 본다."""
@@ -184,14 +220,14 @@ class PkgPipeline(Pipeline):
             require(r["c_basis"] in PP.BASIS, "generate_basis")
             status, basis = r["e_status"], r["c_basis"]
             # F27: 원문 지위와 상태는 양방향으로 맞아야 한다. 엄격 모드에서는 충돌을 계약 오류로 보내 1회 복구한다.
-            conflict = (status == "ANSWERED" and basis in PP.BASIS_MISSING) or \
-                (status != "ANSWERED" and basis not in PP.BASIS_MISSING)
+            conflict = (status == "ANSWERED" and basis in missing_bases) or \
+                (status != "ANSWERED" and basis not in missing_bases)
             if strict and conflict:
                 raise ContractError(f"basis_status_conflict:R{i}:{basis}/{status}")
             base = {"id": f"R{i}", "request": texts[i - 1], "asked": str(r["b_asked"]).strip()[:120], "basis": basis}
             if conflict:
                 base["basis_status_conflict"] = f"{basis}/{status}"
-            if status == "ANSWERED" and basis in PP.BASIS_MISSING:
+            if status == "ANSWERED" and basis in missing_bases:
                 status = "CORE_MISSING"
                 base["status_from_basis"] = True  # 모델이 붙인 ANSWERED와 원문 지위 판정이 충돌
             if status == "CORE_MISSING" and background and i <= len(background) and background[i - 1]:
@@ -216,11 +252,25 @@ class PkgPipeline(Pipeline):
             require(not claims[0]["text"].startswith(contracts.ABSTAIN_TEXT), "answered_but_abstain_text")
             parsed.append(dict(base, status=status, claims=claims))
         # 핵심 요청 근거 부족이면 기권. 부수 사항만 없으면 답한 요청으로 답한다(답한 요청이 하나는 있어야 함).
-        if not missing and not any(r["status"] == "ANSWERED" for r in parsed):
+        return PkgPipeline.finalize(parsed, v, partial)
+
+    @staticmethod
+    def finalize(parsed: list, wire, partial: bool = False) -> dict:
+        """요청별 상태 → 결정·답·근거. 핵심 근거 부족이 있으면 기권(부분 답 켜면 답한 요청이 있을 때 답)."""
+        missing = any(r["status"] == "CORE_MISSING" for r in parsed)
+        answered = any(r["status"] == "ANSWERED" for r in parsed)
+        if not missing and not answered:
             missing = True
+        texts = [c["text"] for r in parsed for c in r["claims"]]
+        if missing and partial and answered:
+            # 새 채점 지침: 인용이 정답인 문항에서 "확인 불가"는 0점이다. 답한 요청이 있으면 그 부분으로 답하고,
+            # 근거가 없는 요청은 답에 그 사실만 밝힌다(근거 id 없이, 인용에 넣지 않음).
+            missing = False
+            texts += [f"‘{r.get('asked') or r['request']}’에 관한 구체 내용은 조례에 정해져 있지 않습니다."
+                      for r in parsed if r["status"] == "CORE_MISSING"]
         decision = "ABSTAIN" if missing else "ANSWER"
-        return {"decision": decision, "requests": parsed, "wire": v,
-                "answer": " ".join(c["text"] for r in parsed for c in r["claims"]) if not missing else "",
+        return {"decision": decision, "requests": parsed, "wire": wire,
+                "answer": " ".join(texts) if not missing else "",
                 "used": list(dict.fromkeys(i for r in parsed for c in r["claims"] for i in c["ids"]))}
 
     def _review(self, question, parsed, sources, allowed, deadline, tr, state):
@@ -231,7 +281,7 @@ class PkgPipeline(Pipeline):
                  "claims": [{"no": c["no"], "text": c["text"], "ids": ", ".join(c["ids"])} for c in r["claims"]]}
                 for r in parsed["requests"]]
         n = len(parsed["requests"])
-        body = contracts.chat_body(self.cfg.review_model, PP.REVIEW_SYSTEM,
+        body = contracts.chat_body(self.cfg.review_model, PP.review_system(self.cfg.pkg_delegation_answers),
                                    {"question": question, "requests": wire, "sources": sources},
                                    PP.review_schema(n), "pkg_review", self.cfg.review_max_tokens)
         claim_ids = {c["no"]: set(c["ids"].split(", ")) for c in claims}
@@ -384,14 +434,32 @@ class PkgPipeline(Pipeline):
         if not ranked:
             tr["route"] = "no_lexical_candidates"
             return "ABSTAIN", dict(contracts.UNKNOWN)
-        cards = self.index.candidate_cards(ranked)
+        cards = self.index.candidate_cards(ranked, with_scope=cfg.pkg_scope_select)
         tr["retrieval"] = {"ranked": ranked[:20], "cards": [c["id"] for c in cards]}
 
         sel = self._select(question, frame, cards, deadline, tr, state)
         tr["selection"] = sel
         bg = frame.get("background") or [False] * len(sel)
         # PKG9: 배경 진술에서 나온 요청은 선택 단계에서도 답 전체를 막지 않는다(PKG8 B-09: 근거 0개 → 전체 기권).
-        if any(not r["ids"] for r, b in zip(sel, bg) if not b) or not any(r["ids"] for r in sel):
+        empty_core = any(not r["ids"] for r, b in zip(sel, bg) if not b)
+        none_selected = not any(r["ids"] for r in sel)
+        scopes = [r.get("scope") for r in sel] if cfg.pkg_scope_select else None
+        if scopes:
+            tr["scope"] = [{"id": r["id"], "scope": r["scope"], "object": r["object"], "aspect": r["aspect"]} for r in sel]
+        if cfg.pkg_scope_select and none_selected and not cfg.pkg_scope_advisory:
+            # 범위 판정으로 답할 요청이 하나도 없으면 기권(대체 경로 없음: 판정을 선택기가 한다).
+            tr["route"] = "select_scope_none"
+            return "ABSTAIN", dict(contracts.UNKNOWN)
+        if cfg.pkg_scope_select and not (cfg.pkg_scope_advisory and (none_selected or (empty_core and not cfg.pkg_partial_answers))):
+            pass  # 일부 요청만 MATCH면 그 요청으로 진행한다(나머지는 생성·코드에서 근거 부족 처리)
+        elif none_selected and cfg.pkg_select_empty_fallback > 0:
+            # 선택기가 아무 근거도 넘기지 않으면 바로 기권하지 않고 검색 상위 카드를 생성기에 넘겨 판단하게 한다.
+            fb = [c["id"] for c in cards[:cfg.pkg_select_empty_fallback]]
+            tr["select_fallback"] = fb
+            sel = [dict(r, ids=list(fb)) for r in sel]
+        elif empty_core and not none_selected and cfg.pkg_partial_answers:
+            tr["select_partial"] = [r["id"] for r, b in zip(sel, bg) if not b and not r["ids"]]
+        elif empty_core or none_selected:
             tr["route"] = "select_core_missing"
             return "ABSTAIN", dict(contracts.UNKNOWN)
         selected = list(dict.fromkeys(i for r in sel for i in r["ids"]))
@@ -410,13 +478,21 @@ class PkgPipeline(Pipeline):
             # 이미 썼거나 복구 응답도 충돌하면 기존 규칙(ANSWERED+원문 부재 → 근거 부족, 그 반대는 모델 상태)으로 받는다.
             strict = not state["repair_used"]
             out = self.parse_generate(raw, allowed, frame["requests"], strict=strict,
-                                      background=frame.get("background"))
+                                      background=frame.get("background"),
+                                      missing_bases=PP.basis_missing(cfg.pkg_delegation_answers),
+                                      partial=cfg.pkg_partial_answers)
             if any(r.get("basis_status_conflict") for r in out["requests"]):
                 tr.setdefault("basis_conflicts_accepted", []).extend(
                     r["id"] + ":" + r["basis_status_conflict"] for r in out["requests"] if r.get("basis_status_conflict"))
             return out
-        draft = self._structured("generate", self._generate_body(question, frame, sources), parse,
+        draft = self._structured("generate", self._generate_body(question, frame, sources, scopes=scopes), parse,
                                  deadline, tr, state, PP.REPAIR_TEMPLATE)
+        if scopes:
+            draft = self.apply_scope(draft, sel, allowed, tr, "draft")
+        if cfg.pkg_governance_judge:
+            draft = self.verify.governance(question, draft, sources, allowed, deadline, tr, "draft")
+        if draft["decision"] == "ABSTAIN" and cfg.pkg_abstain_resample > 0:
+            draft = self.resample_abstain(question, frame, sources, scopes, allowed, draft, deadline, tr)
         tr["draft"] = {k: draft[k] for k in ("decision", "requests", "used")}
         if draft["decision"] == "ABSTAIN":
             recovered = self.verify.recover(question, frame, draft, sources, allowed, deadline, tr, state) \
@@ -438,14 +514,24 @@ class PkgPipeline(Pipeline):
                 if xl:
                     tr["external_list_check"] = xl
                     issues = (issues or []) + xl
+            if issues and cfg.pkg_partial_answers:
+                missing_ids = {r["id"] for r in draft["requests"] if r["status"] in ("CORE_MISSING", "SIDE_MISSING")}
+                kept = [i for i in issues if not (i["kind"] == "unanswered_core" and i["claim"] in missing_ids)]
+                if len(kept) != len(issues):
+                    tr["review_issues_on_missing_dropped"] = len(issues) - len(kept)
+                issues = kept
             if issues:
                 if deadline - time.monotonic() < cfg.min_seconds_for_review:
                     tr["correction"] = {"status": "skipped_insufficient_time"}
                 else:
                     try:
                         final = self._structured(
-                            "correct", self._generate_body(question, frame, sources, draft, issues),
+                            "correct", self._generate_body(question, frame, sources, draft, issues, scopes=scopes),
                             parse, deadline, tr, state, PP.REPAIR_TEMPLATE)
+                        if scopes:
+                            final = self.apply_scope(final, sel, allowed, tr, "correct")
+                        if cfg.pkg_governance_judge:
+                            final = self.verify.governance(question, final, sources, allowed, deadline, tr, "correct")
                         tr["correction"] = {"status": "ok", "decision": final["decision"],
                                             "requests": final["requests"]}
                         # F01: 교정 기권은 '검토가 그 요청의 핵심 미응답을 지적했고, 교정자가 원문과 대조해
@@ -455,7 +541,7 @@ class PkgPipeline(Pipeline):
                         if final["decision"] == "ABSTAIN":
                             if cfg.pkg_accept_correction_abstain and self.correction_abstain_ok(issues, final):
                                 tr["correction"]["status"] = "abstain_accepted"
-                            elif cfg.pkg_accept_external_correction_abstain and \
+                            elif cfg.pkg_accept_external_correction_abstain and not cfg.pkg_delegation_answers and \
                                     self.correction_external_ok(issues, final, draft):
                                 # G-09(PKG8): 검토가 핵심 미응답을 지적하고, 교정자가 외부 법령 의존으로 판정했으며,
                                 # 초안이 쓴 명제에 그래프상 외부 의존(목록·정의)이 있으면 교정 기권을 받는다.
@@ -484,10 +570,108 @@ class PkgPipeline(Pipeline):
         return self.submission(final, tr, f"answered:review={tr.get('review', {}).get('status', 'disabled')}"
                                           f":correction={tr.get('correction', {}).get('status', 'none')}")
 
+    def resample_abstain(self, question, frame, sources, scopes, allowed, draft, deadline, tr):
+        """기권 초안만: 같은 생성 요청을 높은 온도로 N번 더 뽑아, 답한 표본이 k개 이상이면 첫 답한 표본을 초안으로 쓴다.
+        Solar 판단을 그대로 받지 않고 '여러 번 중 몇 번 답하나'로 바꿔 답하는 쪽 기준을 조절한다(검토·교정은 그대로 거친다)."""
+        cfg = self.cfg
+        n, k = cfg.pkg_abstain_resample, max(1, cfg.pkg_abstain_resample_k)
+        rec = {"n": n, "k": k, "decisions": []}
+        tr["resample"] = rec
+        if deadline - time.monotonic() < 35.0:
+            rec["status"] = "skipped_insufficient_time"
+            return draft
+        body = dict(self._generate_body(question, frame, sources, scopes=scopes), temperature=cfg.pkg_resample_temperature)
+        cap = cfg.stage_caps["generate"]
+
+        def one(j):
+            calls = []
+            try:
+                raw = self.client.chat(f"generate_s{j}", body, deadline, cap, calls)
+                if raw == TRUNCATED:
+                    raise ContractError("output_truncated")
+                out = self.parse_generate(raw, allowed, frame["requests"], strict=False,
+                                          background=frame.get("background"),
+                                          missing_bases=PP.basis_missing(cfg.pkg_delegation_answers),
+                                          partial=cfg.pkg_partial_answers)
+                return out, None, calls
+            except (ContractError, CallError) as e:
+                if isinstance(e, CallError) and e.code == "budget_cap_reached":
+                    raise
+                return None, getattr(e, "code", str(e)), calls
+
+        with ThreadPoolExecutor(max_workers=n) as pool:
+            results = list(pool.map(one, range(n)))
+        adopted = None
+        for j, (out, err, calls) in enumerate(results):
+            tr["calls"].extend(calls)
+            rec["decisions"].append(err and ("ERROR:" + err) or out["decision"])
+            if out is not None and out["decision"] == "ANSWER" and adopted is None:
+                adopted = (j, out)
+        rec["answers"] = sum(d == "ANSWER" for d in rec["decisions"])
+        if adopted is not None and rec["answers"] >= k:
+            rec["adopted"] = adopted[0]
+            tr["draft_abstain"] = {kk: draft[kk] for kk in ("decision", "requests")}
+            return adopted[1]
+        return draft
+
+    def apply_scope(self, parsed: dict, sel: list, allowed: set, tr: dict, tag: str) -> dict:
+        """범위 판정(선택 단계)을 코드로 적용한다.
+        - MATCH 요청을 생성기가 근거 부족으로 두면: 그 요청에 고른 첫 근거로 안내 답을 만든다(원문 인용, 값 추정 없음).
+        - MATCH가 아닌 요청의 안내 답(DELEGATED·EXTERNAL)은 근거 부족으로 바꾼다. 직접 답(DIRECT·APPLIED)은 둔다."""
+        by = {r["id"]: r for r in sel}
+        changed, reqs = {}, []
+        for r in parsed["requests"]:
+            s = by.get(r["id"], {})
+            if s.get("scope") == "MATCH" and r["status"] == "CORE_MISSING":
+                pid = next((i for i in s.get("ids", []) if i in allowed and self.index.by_id[i]["kind"] != "LEAD"),
+                           next((i for i in s.get("ids", []) if i in allowed), None))
+                if pid:
+                    p = self.index.by_id[pid]
+                    label = self.corpus.by_id[p["unit"]].label
+                    excerpt = re.sub(r"\s+", " ", re.sub(r"<[^>]*>", "", p.get("text", ""))).strip()
+                    if len(excerpt) > 160:
+                        excerpt = excerpt[:157].rstrip() + "…"
+                    asked = r.get("asked") or r["request"]
+                    text = (f"조례에는 ‘{asked}’에 관한 구체 내용이 정해져 있지 않습니다. "
+                            f"관련 규정으로 「{label}」은 “{excerpt}”라고 정하고 있습니다.")
+                    r = dict(r, status="ANSWERED", basis="DELEGATED", scope_rescued=True,
+                             claims=[{"no": f"{r['id']}C1", "text": text, "ids": [pid]}])
+                    changed[r["id"]] = "rescued"
+            elif s.get("scope") and s.get("scope") != "MATCH" and r["status"] == "ANSWERED" \
+                    and r.get("basis") in ("DELEGATED", "EXTERNAL"):
+                r = dict(r, status="CORE_MISSING", claims=[], scope_dropped=s["scope"])
+                changed[r["id"]] = "dropped:" + s["scope"]
+            reqs.append(r)
+        tr.setdefault("scope_applied", {})[tag] = changed
+        if not changed:
+            return parsed
+        return self.finalize(reqs, parsed["wire"], partial=self.cfg.pkg_partial_answers)
+
     def submission(self, final: dict, tr: dict, route: str):
         """최종 답(parse_generate 형식) → 제출 객체. 인용·URL·시행일은 주장에 쓴 명제에서 코드가 조립한다."""
-        units = self.index.citation_closure(final["used"])
+        if self.cfg.pkg_citation_rule:
+            units = self.index.citation_closure_ranked(final["used"], self.cfg.pkg_citation_max_total)
+        else:
+            units = self.index.citation_closure(final["used"])
+        if self.cfg.pkg_citation_fill > 0:
+            # 감점은 인용 수 > 정답 수 + 2부터라 정답이 1개 이상이면 N=3까지는 감점이 없다. 선택기가 요청마다 고른 순서로 채운다.
+            seen = {self.corpus.by_id[u].label for u in units}
+            added = []
+            for r in tr.get("selection") or []:
+                for pid in r.get("ids") or []:
+                    if len(seen) >= self.cfg.pkg_citation_fill:
+                        break
+                    p = self.index.by_id.get(pid)
+                    if p and p["unit"] not in units and self.corpus.by_id[p["unit"]].label not in seen:
+                        units.append(p["unit"])
+                        seen.add(self.corpus.by_id[p["unit"]].label)
+                        added.append(p["unit"])
+            if added:
+                tr["citation_filled"] = added
         labels = list(dict.fromkeys(self.corpus.by_id[u].label for u in units))
+        if self.cfg.pkg_citation_cap > 0 and len(labels) > self.cfg.pkg_citation_cap:
+            tr["citation_capped"] = labels[self.cfg.pkg_citation_cap:]
+            labels = labels[:self.cfg.pkg_citation_cap]
         first = self.corpus.by_id[units[0]]
         tr["citation_units"] = units
         tr["route"] = route

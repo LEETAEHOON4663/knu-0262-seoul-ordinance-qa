@@ -10,13 +10,14 @@
 
 ## 0. 대회 제출용 실행 (채점 API)
 
-이 저장소는 PKG11.1에 **제출용 보완**만 더한 판입니다. 답변을 만드는 경로(질문 분해·검색·선택·생성·검토·교정)와 데이터는 PKG11.1과 같습니다.
+이 저장소는 PKG11.1에 **제출용 보완**과 **새 채점 지침(2026-11-19) 대응 설정**을 더한 판입니다. 데이터는 PKG11.1과 같고, 답변 경로의 바뀐 부분은 모두 설정 플래그(기본 끔)이며 제출 설정에서만 켭니다.
 
 | 보완 | 내용 |
 |---|---|
 | 오류도 정해진 JSON으로 | 설정 `submission_abstain_on_error: true`이면, `POST /ask`가 운영 오류(API 실패·429·시간 초과·대기 초과)와 잘못된 입력, 예상 못 한 예외에도 HTTP 200과 `{"answer":"확인 불가","citation":[],"source_url":"","effective_date":""}`를 돌려줍니다. 원인은 `runtime/submit/traces`와 `GET /health`의 `fallback_abstain`에 남습니다 |
 | 외부 접속 | 제출 설정은 `host` 0.0.0.0, `port` 8000. `--host`와 `--port`로 바꿀 수 있습니다 |
 | 연결 안정성(2026-11-19) | 모든 요청은 응답 전에 본문을 끝까지 읽습니다(Content-Length, chunked). 잘못된 경로나 너무 큰 본문이 같은 연결의 다음 요청을 깨뜨리던 문제를 고쳤습니다. 이 문제는 터널이 연결을 나눠 쓸 때 실제로 확인했습니다. HTTP 해석 오류도 JSON으로 답합니다. `/ask/`, `/ask?…`도 받고, 제출 모드에서는 `POST /`도 `/ask`로 받습니다 |
+| 새 채점 지침 대응(2026-11-21) | 제출 설정에서 켠 플래그: `pkg_citation_rule`(주장 조항 전부 + 연결 조항 합계 3개까지), `pkg_delegation_answers`·`pkg_topic_rule`(주제 조항이 있으면 위임·준용·세부 없음도 그 조항으로 안내), `pkg_partial_answers`(일부 요청만 근거 부족이면 답한 부분으로 답), `pkg_select_empty_fallback=5`, `pkg_boundary_examples`(HOLD150 검토 판정 예시 10개), `pkg_citation_fill=3`·`pkg_citation_cap=4`(인용 3개까지 선택 근거로 채우고 4개를 넘기지 않음: 감점은 정답 수+2 초과부터), `pkg_contract_retry`(복구 후에도 형식 오류면 같은 단계를 새로 1회 호출). `pkg_abstain_resample=5`·`pkg_abstain_resample_k=3`(생성 초안이 기권이면 생성기를 temperature 0.7로 5번 더 뽑아 3번 이상 답하면 답함). 실험 기록은 작업 폴더 `newrule/PROTOCOL.md` |
 | 예산 상한 | 제출 설정은 10달러입니다(실행 폴더 누적, 문항당 약 0.003~0.0034달러) |
 | 키 | 설정의 `api_key_file` → 환경변수 `UPSTAGE_API_KEY` → `claude_impl/.env` → 루트 `.env` 순서로 찾습니다. `.env`는 올리지 않습니다(`.gitignore`) |
 

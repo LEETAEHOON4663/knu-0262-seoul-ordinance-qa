@@ -12,5 +12,17 @@
  "api_key_file": null,
  "host": "0.0.0.0",
  "port": 8000,
- "submission_abstain_on_error": true
+ "submission_abstain_on_error": true,
+ "pkg_citation_rule": true,
+ "pkg_delegation_answers": true,
+ "pkg_partial_answers": true,
+ "pkg_select_empty_fallback": 5,
+ "pkg_topic_rule": true,
+ "pkg_boundary_examples": true,
+ "pkg_citation_fill": 3,
+ "pkg_citation_cap": 4,
+ "pkg_contract_retry": true,
+ "pkg_abstain_resample": 5,
+ "pkg_abstain_resample_k": 3,
+ "pkg_resample_temperature": 0.7
 }

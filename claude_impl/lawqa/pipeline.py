@@ -71,6 +71,10 @@ class Pipeline:
     def _structured(self, stage, body, parser, deadline, tr, state, repair_template,
                     allow_repair=True):
         cap = self.cfg.stage_caps["correct" if stage == "correct" else stage]
+        effort = getattr(self.cfg, "reasoning_effort", "")
+        if effort and stage in getattr(self.cfg, "reasoning_stages", ()):
+            # Solar 추론 설정(주최 측 안내 문서의 개선 항목). 추론 토큰도 완료 토큰에 들어가므로 상한을 늘린다.
+            body = dict(body, reasoning_effort=effort, max_tokens=body["max_tokens"] + self.cfg.reasoning_extra_tokens)
         raw = self.client.chat(stage, body, deadline, cap, tr["calls"])
         try:
             if raw == TRUNCATED:
@@ -96,6 +100,19 @@ class Pipeline:
                 out = parser(raw2)
             except ContractError as e2:
                 rec["recovered"] = False
+                if getattr(self.cfg, "pkg_contract_retry", False) and not state.get("fresh_retry_used"):
+                    # 복구 대화가 같은 오류를 되풀이하면 대화 없이 새로 1회 호출한다(본문이 달라 캐시도 새로 탄다).
+                    state["fresh_retry_used"] = True
+                    fresh = dict(body, temperature=0.3)
+                    raw3 = self.client.chat(stage + "_retry", fresh, deadline, cap, tr["calls"])
+                    try:
+                        if raw3 == TRUNCATED:
+                            raise ContractError("output_truncated")
+                        out = parser(raw3)
+                        rec["recovered"] = "fresh_retry"
+                        return out
+                    except ContractError as e3:
+                        raise ContractError(stage + "_contract_after_retry:" + e3.code)
                 raise ContractError(stage + "_contract_after_repair:" + e2.code)
             rec["recovered"] = True
             return out

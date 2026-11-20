@@ -182,6 +182,62 @@ class AnswerVerifier:
             return False
 
     # ------------------------------------------------------------------ C: 기권 복구
+    GUIDED_BASES = ("DELEGATED", "EXTERNAL")
+
+    def governance(self, question: str, parsed: dict, sources: list, allowed: set, deadline: float, tr: dict,
+                   tag: str) -> dict:
+        """새 채점 지침: 안내 답(DELEGATED·EXTERNAL)과 핵심 근거 부족 요청만 다시 판정한다.
+        - 안내 답인데 판정기가 NOT_GOVERNS → 그 요청은 근거 부족(CORE_MISSING)으로 바꾼다.
+        - 근거 부족인데 판정기가 GOVERNS이고 인용 구절이 그 조각 원문에 글자 그대로 있으면 → 안내 답으로 바꾼다.
+        오류·시간 부족이면 아무것도 바꾸지 않는다."""
+        rec = tr.setdefault("governance", {})[tag] = {"status": "not_applicable"}
+        targets = [r for r in parsed["requests"]
+                   if (r["status"] == "ANSWERED" and r.get("basis") in self.GUIDED_BASES) or r["status"] == "CORE_MISSING"]
+        if not targets or not sources:
+            return parsed
+        if deadline - time.monotonic() < self.cfg.min_seconds_for_review:
+            rec["status"] = "skipped_insufficient_time"
+            return parsed
+        texts = self._part_texts(sources)
+        wire = [{"id": r["id"], "request": r["request"], "asked": r.get("asked", ""), "status": r["status"],
+                 "answer": " ".join(c["text"] for c in r["claims"])} for r in targets]
+        body = contracts.chat_body(self.cfg.answer_model, PP.GOVERN_SYSTEM,
+                                   {"question": question, "requests": wire, "sources": sources},
+                                   PP.govern_schema(len(targets)), "pkg_govern", 1200)
+        try:
+            raw = self.client.chat("govern", body, deadline, self.cfg.stage_caps["review"], tr["calls"])
+            if raw == TRUNCATED:
+                raise ContractError("output_truncated")
+            v = loads_strict(raw)
+            require(isinstance(v, dict) and set(v) == {"a_checks"} and isinstance(v["a_checks"], list)
+                    and len(v["a_checks"]) == len(targets), "govern_fields")
+        except (ContractError, CallError) as e:
+            if isinstance(e, CallError) and e.code == "budget_cap_reached":
+                raise
+            rec["status"] = "unavailable:" + getattr(e, "code", str(e))
+            return parsed
+        changes = {}
+        for it, r in zip(v["a_checks"], targets):
+            if not (isinstance(it, dict) and str(it.get("a_request", "")).strip() == r["id"]
+                    and it.get("e_verdict") in PP.GOVERN_VERDICTS):
+                continue
+            src = str(it.get("c_source", "")).strip()
+            quote_ok = (src in allowed and src in texts and _norm(it.get("d_quote")) != ""
+                        and _norm(it.get("d_quote")) in _norm(texts[src][1]))
+            ans = str(it.get("f_answer", "")).strip()
+            if r["status"] == "ANSWERED" and it["e_verdict"] == "NOT_GOVERNS":
+                changes[r["id"]] = dict(r, status="CORE_MISSING", claims=[], governance="dropped",
+                                        discarded_text=[c["text"][:200] for c in r["claims"]])
+            elif r["status"] == "CORE_MISSING" and it["e_verdict"] == "GOVERNS" and quote_ok and ans \
+                    and not ans.startswith(contracts.ABSTAIN_TEXT):
+                changes[r["id"]] = dict(r, status="ANSWERED", basis="DELEGATED", governance="rescued",
+                                        claims=[{"no": f"{r['id']}C1", "text": ans, "ids": [src]}])
+        rec.update(status="ok", checks=v["a_checks"], changed={k: x["governance"] for k, x in changes.items()})
+        if not changes:
+            return parsed
+        reqs = [changes.get(r["id"], r) for r in parsed["requests"]]
+        return self.pipe.finalize(reqs, parsed["wire"], partial=self.cfg.pkg_partial_answers)
+
     def recover(self, question: str, frame: dict, abstained: dict, sources: list, allowed: set, deadline: float,
                 tr: dict, state: dict):
         """핵심 근거 부족으로 기권한 답(abstained)을 다섯 단계를 모두 통과할 때만 답으로 되돌린다.

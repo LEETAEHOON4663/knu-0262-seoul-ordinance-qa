@@ -68,6 +68,8 @@ class PropIndex:
         self.out = defaultdict(list)  # prop → edges
         for e in g["edges"]:
             self.out[e["from"]].append(e)
+        spath = Path(data_dir) / "pkg" / "scope.json"  # 새 채점 지침: 명제 범위 표시(대상·측면·맡긴 측면)
+        self.scope = json.loads(spath.read_text(encoding="utf-8"))["scope"] if spath.exists() else {}
         self.views = [P.search_view(p) for p in self.props]
         self._searchable = [p["kind"] != "DELETED" for p in self.props]  # G03: 삭제 항은 후보에서 뺀다
         self.bm25 = BM25(self.views)
@@ -152,8 +154,28 @@ class PropIndex:
             c["status"] = p["extraction_status"]
         return c
 
-    def candidate_cards(self, ranked: list[tuple[str, float]]) -> list[dict]:
+    def scope_note(self, pid: str) -> str:
+        sc = self.scope.get(pid)
+        if not sc:
+            return ""
+        bits = ["대상: " + ", ".join(sc["objects"])]
+        if sc.get("aspects"):
+            bits.append("정하는 면: " + ", ".join(sc["aspects"]))
+        if sc.get("delegates"):
+            bits.append("세부를 맡긴 면: " + ", ".join(sc["delegates"]))
+        if sc.get("outside"):
+            bits.append("따르는 법령: " + sc["outside"])
+        return " / ".join(bits)
+
+    def candidate_cards(self, ranked: list[tuple[str, float]], with_scope: bool = False) -> list[dict]:
         """순위 순서 카드. 호 카드의 도입문 카드는 한 번만 함께 넣는다."""
+        if with_scope:
+            cards = self.candidate_cards(ranked)
+            for c in cards:
+                note = self.scope_note(c["id"])
+                if note:
+                    c["scope"] = note
+            return cards
         cards, seen = [], set()
         for pid, _ in ranked:
             p = self.by_id[pid]
@@ -259,6 +281,28 @@ class PropIndex:
                 units.append(p["unit"])
             for e in self.out[pid]:
                 if e["role"] in ("REFERENCE", "EXCEPTION", "TABLE") or e["role"].startswith("REVIEWED:"):
+                    tu = self.by_id[e["to"]]["unit"] if e["to_kind"] == "prop" else e["to"]
+                    if tu not in units:
+                        units.append(tu)
+        return units
+
+    CLOSURE_PRIORITY = (("EXCEPTION", "TABLE"), ("REVIEWED:",), ("REFERENCE",))
+
+    def citation_closure_ranked(self, used: list[str], max_total: int = 3) -> list[str]:
+        """새 채점 지침(인용 수 > 정답 수 + 2 감점) 대응. 주장에 직접 쓴 명제의 단위는 개수 제한 없이 모두 넣고,
+        1단계 연결 단위는 예외·표 → 검토 → 참조 순으로 합계가 max_total에 이를 때까지만 붙인다."""
+        units = []
+        for pid in used:
+            u = self.by_id[pid]["unit"]
+            if u not in units:
+                units.append(u)
+        for roles in self.CLOSURE_PRIORITY:
+            for pid in used:
+                for e in self.out[pid]:
+                    if len(units) >= max_total:
+                        return units
+                    if not any(e["role"] == r or (r.endswith(":") and e["role"].startswith(r)) for r in roles):
+                        continue
                     tu = self.by_id[e["to"]]["unit"] if e["to_kind"] == "prop" else e["to"]
                     if tu not in units:
                         units.append(tu)

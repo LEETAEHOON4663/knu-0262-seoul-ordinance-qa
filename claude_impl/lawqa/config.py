@@ -54,6 +54,25 @@ class Config:
     pkg_extdep_imported_terms: bool = False      # PKG12 B: 질문의 하위 종류 용어 → 외부 정의 명제도 검사 대상
     pkg_abstention_recovery: bool = False        # PKG12 C: 핵심 근거 부족 기권을 위치 확인·재생성·검토로 복구
     pkg_accept_correction_abstain: bool = False  # F01 규칙(핵심 미응답 지적 + 원문 부재 판정). PKG5 실측 순손실로 기본 끔
+    pkg_citation_rule: bool = False  # 새 채점 지침(11/19): 주장 조항 전부 + 연결 조항은 우선순위로 합계 pkg_citation_max_total까지
+    pkg_citation_max_total: int = 3
+    pkg_delegation_answers: bool = False  # 새 채점 지침(11/19): 위임·준용·세부 없음은 그 조항으로 안내 답, 주제 없음·타 지자체만 기권
+    pkg_partial_answers: bool = False      # 새 채점 지침: 일부 요청만 근거가 없으면 답한 요청으로 답한다(전체 기권하지 않음)
+    pkg_select_empty_fallback: int = 0     # 선택기가 근거 0개면 검색 상위 N 카드를 생성기에 넘긴다(0=끔, 기존처럼 기권)
+    pkg_topic_rule: bool = False           # 생성·선택 지시문: 질문한 기관·급부·행위·절차를 규율하는 조항이 있으면 세부가 없어도 안내 답
+    pkg_governance_judge: bool = False     # 안내 답·근거 부족 요청만 규율 여부를 따로 판정(인용 구절을 코드가 확인)
+    pkg_scope_select: bool = False         # 명제 범위 표시(scope.json)를 카드에 붙이고 선택기가 요청별 범위 판정 → 답/기권을 코드가 정함
+    pkg_scope_advisory: bool = False       # 범위 판정 2판: 선택기는 판정과 상관없이 근거를 고르고, 판정은 안내 답 유지·근거 부족 살리기에만 쓴다
+    pkg_boundary_examples: bool = False    # 생성 지시문에 경계 판정 예시(HOLD150 검토 판정에서 고름, 평가 세트 문항 아님)
+    pkg_citation_fill: int = 0             # 답한 문항 인용이 N개 미만이면 선택기가 고른 근거 조항으로 N개까지 채운다(감점 기준 정답 수+2 안, 0=끔)
+    pkg_citation_cap: int = 0              # 인용을 앞에서부터 N개까지만 둔다(주장 근거 → 연결 → 채움 순, 0=끔). 정답 1개 문항의 과다 감점 방지
+    pkg_abstain_resample: int = 0          # 생성 초안이 기권이면 생성기를 높은 온도로 N번 더 뽑는다(0=끔)
+    pkg_abstain_resample_k: int = 1        # N개 중 답한 표본이 k개 이상이면 첫 답한 표본을 초안으로 쓴다
+    pkg_resample_temperature: float = 0.7
+    pkg_contract_retry: bool = False       # 복구 응답도 계약 오류면 같은 단계를 새로(temperature 0.3, 대화 없이) 1회 더 호출한다
+    reasoning_effort: str = ""             # Solar 추론 설정("", "low", "high"). 비우면 끔
+    reasoning_stages: tuple = ("generate", "correct")
+    reasoning_extra_tokens: int = 4000
     pkg_candidates: int = 40  # 명제 후보 수: 449 오프라인 진단(정답 근거 포함 0.994)으로 정함
     query_planning: bool = True
     review: bool = True
