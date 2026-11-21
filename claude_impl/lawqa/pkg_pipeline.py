@@ -49,6 +49,24 @@ def humanize_ids(text: str) -> str:
     return _ID_IN_TEXT.sub(lambda m: f"{_LAW_SHORT[m.group(1)]} {_human_locator(m.group(2))}", text)
 
 
+_ORDINAL = re.compile(r"(첫째|둘째|셋째|넷째|다섯째)")
+_NUMBERED = re.compile(r"(?:^|\s)\d\)")
+
+
+def enumerated_asks(question: str) -> int:
+    """질문이 나열한 물음 수 추정: 번호(1) 2)), 첫째·둘째, 한 문장 안의 쉼표 항목 수, 물음표 수 중 가장 큰 값."""
+    q = str(question or "")
+    seg = max((len(re.split(r"\s*,\s*", s)) for s in re.split(r"[?.!]", q)), default=1)
+    return max(len(_NUMBERED.findall(q)), len(_ORDINAL.findall(q)), seg, q.count("?"), 1)
+
+
+def adaptive_citation_cap(base: int, answered_requests: int, question: str) -> int:
+    """질문에 맞춘 인용 상한: 기본 상한, 답한 요청 수+2, 질문 나열 수+2 중 가장 큰 값.
+    감점은 인용 수가 '정답 수+2'를 넘을 때부터다. 답한 요청·나열한 물음마다 정답 조항이 하나 이상이면
+    이 값까지는 감점이 없다(감점 없이 풀 수 있는 최대치). 짧은 단일 질문은 기본 상한 그대로다."""
+    return max(base, answered_requests + 2, enumerated_asks(question) + 2)
+
+
 def _missing_topic(asked: str) -> str:
     """부분 답 안내의 주제 표기: 앞에 붙은 '서울특별시 조례상' 같은 말은 뒤 문장('조례에 정해져 있지 않습니다')과 겹치므로 뺀다."""
     t = re.sub(r"^\s*[^‘’]{0,40}?조례상\s+", "", str(asked)).strip()
@@ -721,9 +739,14 @@ class PkgPipeline(Pipeline):
             if added:
                 tr["citation_filled"] = added
         labels = list(dict.fromkeys(self.corpus.by_id[u].label for u in units))
-        if self.cfg.pkg_citation_cap > 0 and len(labels) > self.cfg.pkg_citation_cap:
-            tr["citation_capped"] = labels[self.cfg.pkg_citation_cap:]
-            labels = labels[:self.cfg.pkg_citation_cap]
+        cap = self.cfg.pkg_citation_cap
+        if cap > 0 and self.cfg.pkg_citation_cap_adaptive:
+            answered = sum(1 for r in final.get("requests") or [] if r.get("status") == "ANSWERED")
+            cap = adaptive_citation_cap(cap, answered, tr.get("question", ""))
+            tr["citation_cap_effective"] = cap
+        if cap > 0 and len(labels) > cap:
+            tr["citation_capped"] = labels[cap:]
+            labels = labels[:cap]
         first = self.corpus.by_id[units[0]]
         tr["citation_units"] = units
         tr["route"] = route

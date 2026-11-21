@@ -21,6 +21,7 @@
  "pkg_boundary_examples": true,
  "pkg_citation_fill": 3,
  "pkg_citation_cap": 4,
+ "pkg_citation_cap_adaptive": true,
  "pkg_contract_retry": true,
  "pkg_abstain_resample": 5,
  "pkg_abstain_resample_k": 3,

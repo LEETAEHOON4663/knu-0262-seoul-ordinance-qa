@@ -66,6 +66,7 @@ class Config:
     pkg_boundary_examples: bool = False    # 생성 지시문에 경계 판정 예시(HOLD150 검토 판정에서 고름, 평가 세트 문항 아님)
     pkg_citation_fill: int = 0             # 답한 문항 인용이 N개 미만이면 선택기가 고른 근거 조항으로 N개까지 채운다(감점 기준 정답 수+2 안, 0=끔)
     pkg_citation_cap: int = 0              # 인용을 앞에서부터 N개까지만 둔다(주장 근거 → 연결 → 채움 순, 0=끔). 정답 1개 문항의 과다 감점 방지
+    pkg_citation_cap_adaptive: bool = False  # 상한을 질문에 맞춰 올림: max(pkg_citation_cap, 답한 요청 수+2, 질문 나열 수+2). 기본 끔
     pkg_abstain_resample: int = 0          # 생성 초안이 기권이면 생성기를 높은 온도로 N번 더 뽑는다(0=끔)
     pkg_abstain_resample_k: int = 1        # N개 중 답한 표본이 k개 이상이면 첫 답한 표본을 초안으로 쓴다
     pkg_resample_temperature: float = 0.7

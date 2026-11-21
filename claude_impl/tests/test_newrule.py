@@ -432,6 +432,61 @@ class CitationCap(unittest.TestCase):
         self.assertEqual(tr["citation_capped"], base["citation"][4:])
 
 
+class CitationCapAdaptive(unittest.TestCase):
+    """pkg_citation_cap_adaptive: 상한 = max(pkg_citation_cap, 답한 요청 수+2, 질문 나열 수+2)."""
+
+    def test_default_off(self):
+        from lawqa.config import Config
+        self.assertFalse(Config().pkg_citation_cap_adaptive)
+
+    def test_enumerated_asks(self):
+        from lawqa.pkg_pipeline import enumerated_asks
+        self.assertEqual(enumerated_asks("과태료는 얼마인가요?"), 1)
+        self.assertEqual(enumerated_asks("위원 수, 위원장, 위원 자격, 임기를 알려 주세요."), 4)
+        self.assertEqual(enumerated_asks("1) 누가 2) 언제 3) 어디서"), 3)
+        self.assertEqual(enumerated_asks("첫째, 요금은? 둘째, 할인은? 셋째, 반환은?"), 3)
+        self.assertEqual(enumerated_asks(""), 1)
+
+    def test_cap_formula(self):
+        from lawqa.pkg_pipeline import adaptive_citation_cap as cap
+        self.assertEqual(cap(4, 1, "과태료는 얼마인가요?"), 4)
+        self.assertEqual(cap(4, 2, "과태료는 얼마인가요?"), 4)          # 요청 2개(정답 보통 2개)는 4 그대로
+        self.assertEqual(cap(4, 3, "과태료는 얼마인가요?"), 5)
+        self.assertEqual(cap(4, 1, "가, 나, 다, 라, 마, 바를 알려 주세요"), 8)
+        self.assertEqual(cap(4, 2, "서울에서 활동하는 모임 대표이고 30살인데 주소는 경기도예요. "
+                                   "서울시 청년시설에 입주 신청할 수 있나요, 사무실 이용료도 내나요?"), 4)
+
+    def _run(self, **kw):
+        import lawqa.pkg_pipeline as PPL
+        ids = ["주차장:제3조제2항", "주차장:제6조제1항", "주차장:제13조제3항", "주차장:제16조제2항", ITEM]
+        many = ", ".join(ids)
+        h = dict(H0, pkg_select=select(many), pkg_generate=gen(many))
+        orig = PPL.PropIndex.rank
+        try:
+            PPL.PropIndex.rank = lambda self, *a, **k: [(i, 1.0) for i in ids]
+            return run(dict(h), pkg_citation_rule=True, **kw)
+        finally:
+            PPL.PropIndex.rank = orig
+
+    def test_off_is_fixed_cap(self):
+        _, sub, tr, _ = self._run(pkg_citation_cap=4)
+        self.assertEqual(len(sub["citation"]), 4)
+        self.assertNotIn("citation_cap_effective", tr)
+
+    def test_on_uses_question_and_answered_requests(self):
+        from lawqa.pkg_pipeline import adaptive_citation_cap
+        _, base, _, _ = self._run()
+        _, sub, tr, _ = self._run(pkg_citation_cap=4, pkg_citation_cap_adaptive=True)
+        self.assertEqual(tr["citation_cap_effective"], adaptive_citation_cap(4, 1, tr["question"]))
+        self.assertEqual(sub["citation"], base["citation"][:tr["citation_cap_effective"]])
+
+    def test_on_without_base_cap_stays_off(self):
+        _, base, _, _ = self._run()
+        _, sub, tr, _ = self._run(pkg_citation_cap_adaptive=True)
+        self.assertEqual(sub["citation"], base["citation"])
+        self.assertNotIn("citation_cap_effective", tr)
+
+
 class AbstainResample(unittest.TestCase):
     """pkg_abstain_resample: 기권 초안이면 생성기를 높은 온도로 N번 더 뽑아 k개 이상 답하면 답한다."""
     SILENT = staticmethod(gen("", "CORE_MISSING", basis="SILENT"))  # 클래스 속성 함수가 메서드로 묶이지 않게
