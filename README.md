@@ -19,7 +19,8 @@
 | 연결 안정성(2026-11-19) | 모든 요청은 응답 전에 본문을 끝까지 읽습니다(Content-Length, chunked). 잘못된 경로나 너무 큰 본문이 같은 연결의 다음 요청을 깨뜨리던 문제를 고쳤습니다. 이 문제는 터널이 연결을 나눠 쓸 때 실제로 확인했습니다. HTTP 해석 오류도 JSON으로 답합니다. `/ask/`, `/ask?…`도 받고, 제출 모드에서는 `POST /`도 `/ask`로 받습니다 |
 | 새 채점 지침 대응(2026-11-21) | 제출 설정에서 켠 플래그: `pkg_citation_rule`(주장 조항 전부 + 연결 조항 합계 3개까지), `pkg_delegation_answers`·`pkg_topic_rule`(주제 조항이 있으면 위임·준용·세부 없음도 그 조항으로 안내), `pkg_partial_answers`(일부 요청만 근거 부족이면 답한 부분으로 답), `pkg_select_empty_fallback=5`, `pkg_boundary_examples`(HOLD150 검토 판정 예시 10개), `pkg_citation_fill=3`·`pkg_citation_cap=4`(인용 3개까지 선택 근거로 채우고 4개를 넘기지 않음: 감점은 정답 수+2 초과부터), `pkg_contract_retry`(복구 후에도 형식 오류면 같은 단계를 새로 1회 호출). `pkg_abstain_resample=5`·`pkg_abstain_resample_k=3`(생성 초안이 기권이면 생성기를 temperature 0.7로 5번 더 뽑아 3번 이상 답하면 답함). 실험 기록은 작업 폴더 `newrule/PROTOCOL.md` |
 | 안정성 보완(2026-11-21, newrule-v1.1) | `max_concurrent_requests=8`(동시 처리 4는 요청이 몰리면 줄 대기로 시간이 모자랐다), `rate_limit_retries=2`(Solar 429면 1.5초부터 쉬었다가 같은 요청 재전송, 남은 시간 8초 이상일 때만), `pkg_lenient_subitem_ids`(근거 id의 '○목'은 그 '호' 명제로, 접두어 없는 id는 하나에만 맞을 때, 검토 id 칸의 설명문은 무시). `pkg_humanize_ids`(답 문장 속 내부 근거 id를 '주차장 조례 제7조 제1항 제9호' 같은 조문 표기로 바꿈). 형식 오류 새 호출 재시도는 앞 단계가 복구 기회를 이미 썼어도 쓴다. 부분 답 안내 문구의 '…조례상'은 뺀다. 부하 시험: 동시 32요청에서 429 0, 최대 63초 |
-| 예산 상한 | 제출 설정은 10달러입니다(실행 폴더 누적, 문항당 약 0.003~0.0034달러) |
+| 예산 상한 | 제출 설정은 사실상 상한이 없습니다(`budget_cap_usd` 100000달러. 0으로 두면 실제 호출이 막히는 코드라 큰 값으로 둠). 원장은 실행 폴더에 누적되고, 실제 질문 기준 문항당 약 0.007달러입니다 |
+| 줄바꿈 고정(2026-11-21) | `.gitattributes`(`* -text`)로 받을 때 줄바꿈을 바꾸지 않습니다. 전에는 Windows 기본 설정(core.autocrlf)으로 받으면 `corpus.json` 줄바꿈이 바뀌어 해시 검사에서 엔진이 시작되지 않았습니다. 그 전에 받은 사본은 다시 받아야 합니다 |
 | 키 | 설정의 `api_key_file` → 환경변수 `UPSTAGE_API_KEY` → `claude_impl/.env` → 루트 `.env` 순서로 찾습니다. `.env`는 올리지 않습니다(`.gitignore`) |
 
 Python 3.10 이상, 표준 라이브러리만 씁니다(설치할 패키지 없음).
@@ -35,6 +36,8 @@ python3 -X utf8 -m lawqa serve --config configs/submit_pkg11_1.json --allow-live
 - 오프라인 검사: `cd claude_impl && PYTHONPATH=tests:. python3 -X utf8 -m unittest discover -s tests`
 
 ## 1. 결과 요약
+
+> 이 절과 `eval/`, `results/`의 정답지·점수는 옛 채점 기준(PKG11.1, 2026-11-17) 자료입니다. 새 채점 지침(2026-11-19) 기준 평가는 저장소 밖에서 했습니다.
 
 check.py 주지표는 문항별 인용·기권 부분점수의 평균입니다. 통과율이나 내용 정확도가 아니며, 불필요한 인용을 더해도 감점하지 않습니다.
 

@@ -1,7 +1,7 @@
 {
  "mode": "live",
  "runtime_dir": "../runtime/submit",
- "budget_cap_usd": 10.0,
+ "budget_cap_usd": 100000.0,
  "context_budget_chars": 10000,
  "max_concurrent_requests": 8,
  "request_deadline_seconds": 87.0,

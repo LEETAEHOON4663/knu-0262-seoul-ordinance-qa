@@ -1,0 +1,2 @@
+# 줄바꿈 변환 금지: Windows(core.autocrlf)에서 받으면 corpus.json 등 해시 검사 파일이 바뀌어 엔진이 시작되지 않는다.
+* -text
