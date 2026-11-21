@@ -19,6 +19,7 @@ import hashlib
 import json
 import math
 import os
+import random
 import socket
 import threading
 import time
@@ -238,29 +239,41 @@ class SolarClient:
         if self.transport is None:
             trace.append(dict(rec, error="no_transport_" + self.mode))
             raise CallError("replay_cache_miss" if self.mode == "replay" else "offline_no_transport")
-        remaining = deadline - time.monotonic()
-        timeout = min(stage_cap, remaining - 1.0)
-        if timeout < 2.0:
-            trace.append(dict(rec, error="deadline"))
-            raise CallError("deadline_before_call", status=504)
         wire = {k: v for k, v in body.items() if not k.startswith("_")}
-        est = self._estimate(kind, wire)
-        rid = self.ledger.reserve(est)
-        started = time.monotonic()
-        try:
-            resp = self.transport(url, wire, timeout)
-        except CallError as e:
-            (self.ledger.mark_uncertain if e.uncertain else self.ledger.release)(rid)
-            if e.uncertain:
+        retries = getattr(self.cfg, "rate_limit_retries", 0)
+        attempt = 0
+        while True:
+            remaining = deadline - time.monotonic()
+            timeout = min(stage_cap, remaining - 1.0)
+            if timeout < 2.0:
+                trace.append(dict(rec, error="deadline"))
+                raise CallError("deadline_before_call", status=504)
+            est = self._estimate(kind, wire)
+            rid = self.ledger.reserve(est)
+            started = time.monotonic()
+            try:
+                resp = self.transport(url, wire, timeout)
+            except CallError as e:
+                (self.ledger.mark_uncertain if e.uncertain else self.ledger.release)(rid)
+                if e.uncertain:
+                    self._uncertain_at[key] = time.monotonic()
+                trace.append(dict(rec, error=e.code, uncertain=e.uncertain,
+                                  seconds=round(time.monotonic() - started, 2)))
+                # 429는 처리되지 않은 요청이라 다시 보내도 중복 과금이 없다. 쉬었다가(지수 증가 + 무작위) 남은 시간 안에서만 재시도.
+                wait = getattr(self.cfg, "rate_limit_backoff", 1.5) * (2 ** attempt) + random.uniform(0.0, 0.5)
+                if e.code == "rate_limited" and attempt < retries and deadline - time.monotonic() - wait > 8.0:
+                    attempt += 1
+                    time.sleep(wait)
+                    continue
+                raise
+            except Exception:  # noqa: BLE001 - transport 버그도 처리 불명으로 기록
+                self.ledger.mark_uncertain(rid)
                 self._uncertain_at[key] = time.monotonic()
-            trace.append(dict(rec, error=e.code, uncertain=e.uncertain,
-                              seconds=round(time.monotonic() - started, 2)))
-            raise
-        except Exception:  # noqa: BLE001 - transport 버그도 처리 불명으로 기록
-            self.ledger.mark_uncertain(rid)
-            self._uncertain_at[key] = time.monotonic()
-            trace.append(dict(rec, error="transport_exception", uncertain=True))
-            raise CallError("transport_exception", uncertain=True)
+                trace.append(dict(rec, error="transport_exception", uncertain=True))
+                raise CallError("transport_exception", uncertain=True)
+            break
+        if attempt:
+            rec["rate_limit_retries"] = attempt
         cost = self._actual(kind, wire, resp, est)
         self.ledger.settle(rid, cost)
         rec.update(seconds=round(time.monotonic() - started, 2), usd=round(cost, 8),

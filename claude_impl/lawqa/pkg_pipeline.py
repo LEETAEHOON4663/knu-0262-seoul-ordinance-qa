@@ -23,8 +23,41 @@ from .pkg_verify import AnswerVerifier
 SUBSTANTIVE = ("unanswered_core", "unsupported_claim")
 
 
+LENIENT_SUBITEM_IDS = False  # PkgPipeline이 설정(pkg_lenient_subitem_ids)으로 정한다
+_SUBITEM = re.compile(r"(?<=호)[가-하]목?$")
+
+
+_LAW_SHORT = {"주차장": "주차장 조례", "도시공원": "도시공원 조례", "동물보호": "동물보호 조례", "청년": "청년 기본 조례",
+              "자전거": "자전거 조례", "금연": "금연 조례"}
+_ID_IN_TEXT = re.compile(r"(주차장|도시공원|동물보호|청년|자전거|금연):([0-9A-Za-z가-힣#~·의]+)")
+
+
+def _human_locator(loc: str) -> str:
+    """내부 위치 표기 → 사람이 읽는 표기. 제7조제1항제9호단서 → 제7조 제1항 제9호 단서, 별표2#행25 → 별표 2, 별표1#비고11 → 별표 1 비고 11."""
+    m = re.match(r"별표(\d*)(?:#(행|비고|열)(\d+).*)?$", loc)
+    if m:
+        out = "별표" + (" " + m.group(1) if m.group(1) else "")
+        return out + (f" 비고 {m.group(3)}" if m.group(2) == "비고" else "")
+    loc = re.sub(r"(?<=[조항호목])(?=제\d)", " ", loc)       # 조·항·호 사이 띄어쓰기
+    loc = re.sub(r"(?<=의\d)(?=제\d)", " ", loc)             # 제10조의2제3항 → 제10조의2 제3항
+    loc = re.sub(r"(?<=[조항호목])(?=단서)", " ", loc)
+    return loc
+
+
+def humanize_ids(text: str) -> str:
+    """답 문장에 생성기가 적은 내부 근거 id(주차장:제7조제1항제9호 등)를 사람이 읽는 조문 표기로 바꾼다. 인용 목록은 건드리지 않는다."""
+    return _ID_IN_TEXT.sub(lambda m: f"{_LAW_SHORT[m.group(1)]} {_human_locator(m.group(2))}", text)
+
+
+def _missing_topic(asked: str) -> str:
+    """부분 답 안내의 주제 표기: 앞에 붙은 '서울특별시 조례상' 같은 말은 뒤 문장('조례에 정해져 있지 않습니다')과 겹치므로 뺀다."""
+    t = re.sub(r"^\s*[^‘’]{0,40}?조례상\s+", "", str(asked)).strip()
+    return t or str(asked).strip()
+
+
 def parse_ids(text, allowed: set, code: str) -> list[str]:
-    """쉼표 id 목록. 공백 차이는 허용, 제공되지 않은 id는 계약 오류(조용히 지우지 않음)."""
+    """쉼표 id 목록. 공백 차이는 허용, 제공되지 않은 id는 계약 오류(조용히 지우지 않음).
+    설정을 켜면 명제 그래프에 없는 '○목' id(예: 제10조제1항제3호가목)는 그 목을 포함한 '호' 명제가 제공됐을 때 그 명제로 받는다."""
     require(isinstance(text, str), code + "_type")
     table = {re.sub(r"\s+", "", a): a for a in allowed}
     out = []
@@ -33,6 +66,16 @@ def parse_ids(text, allowed: set, code: str) -> list[str]:
         if not key:
             continue
         hit = table.get(key)
+        if hit is None and LENIENT_SUBITEM_IDS:
+            if _SUBITEM.search(key):
+                hit = table.get(_SUBITEM.sub("", key))
+            elif ":" not in key:
+                # 조례 접두어가 빠진 id("제2조제16호")는 제공된 id 중 하나에만 맞을 때 받는다.
+                cands = [a for k, a in table.items() if k.split(":", 1)[-1] == key]
+                if len(cands) == 1:
+                    hit = cands[0]
+                elif code == "issue":
+                    continue  # 검토의 id 칸에 쓴 설명문("해당없음" 등)은 id가 아니므로 무시한다
         require(hit is not None, code + "_unknown_id:" + key[:40])
         if hit not in out:
             out.append(hit)
@@ -100,6 +143,8 @@ class PkgPipeline(Pipeline):
     def __init__(self, cfg, client=None, transport=None, allow_live=False):
         super().__init__(cfg, client=client, transport=transport, allow_live=allow_live)
         self.index = PropIndex(self.corpus, cfg.data_dir, use_dense=True)
+        global LENIENT_SUBITEM_IDS
+        LENIENT_SUBITEM_IDS = bool(getattr(cfg, "pkg_lenient_subitem_ids", False))
         self.verify = AnswerVerifier(self)  # PKG12 답변 후 검증(외부 의존 확인·기권 복구, 기본 끔)
 
     # ------------------------------------------------------------------ 계약
@@ -211,6 +256,8 @@ class PkgPipeline(Pipeline):
         for r in reqs:
             require(isinstance(r, dict) and set(r) == {"a_request", "b_asked", "c_basis", "d_claims", "e_status"},
                     "generate_item")
+            # d_claims가 null 등 배열이 아니면 TypeError로 요청 전체가 죽지 않게 계약 오류(복구 대상)로 보낸다.
+            require(isinstance(r["d_claims"], list), "generate_claims_type")
         if requests is not None:
             check_request_ids(reqs, requests, "generate")
         texts = list(requests) if requests is not None else [str(r["a_request"]).strip() for r in reqs]
@@ -266,7 +313,7 @@ class PkgPipeline(Pipeline):
             # 새 채점 지침: 인용이 정답인 문항에서 "확인 불가"는 0점이다. 답한 요청이 있으면 그 부분으로 답하고,
             # 근거가 없는 요청은 답에 그 사실만 밝힌다(근거 id 없이, 인용에 넣지 않음).
             missing = False
-            texts += [f"‘{r.get('asked') or r['request']}’에 관한 구체 내용은 조례에 정해져 있지 않습니다."
+            texts += [f"‘{_missing_topic(r.get('asked') or r['request'])}’에 관한 구체 내용은 조례에 정해져 있지 않습니다."
                       for r in parsed if r["status"] == "CORE_MISSING"]
         decision = "ABSTAIN" if missing else "ANSWER"
         return {"decision": decision, "requests": parsed, "wire": wire,
@@ -516,7 +563,10 @@ class PkgPipeline(Pipeline):
                     issues = (issues or []) + xl
             if issues and cfg.pkg_partial_answers:
                 missing_ids = {r["id"] for r in draft["requests"] if r["status"] in ("CORE_MISSING", "SIDE_MISSING")}
-                kept = [i for i in issues if not (i["kind"] == "unanswered_core" and i["claim"] in missing_ids)]
+                # 근거 부족으로 둔 요청의 '핵심 미응답' 지적은 버린다(부분 답이 이미 한계를 밝힘). 단 검토자가 그 요청에
+                # 답하는 원문 id를 제시했으면 교정에 넘긴다(Codex 점검 2026-11-21).
+                kept = [i for i in issues if not (i["kind"] == "unanswered_core" and i["claim"] in missing_ids
+                                                  and not i.get("ids"))]
                 if len(kept) != len(issues):
                     tr["review_issues_on_missing_dropped"] = len(issues) - len(kept)
                 issues = kept
@@ -598,6 +648,8 @@ class PkgPipeline(Pipeline):
                 if isinstance(e, CallError) and e.code == "budget_cap_reached":
                     raise
                 return None, getattr(e, "code", str(e)), calls
+            except Exception as e:  # noqa: BLE001 - 표 하나의 이상한 출력이 나머지 표까지 버리게 하지 않는다
+                return None, "unexpected:" + type(e).__name__, calls
 
         with ThreadPoolExecutor(max_workers=n) as pool:
             results = list(pool.map(one, range(n)))
@@ -675,5 +727,6 @@ class PkgPipeline(Pipeline):
         first = self.corpus.by_id[units[0]]
         tr["citation_units"] = units
         tr["route"] = route
-        return "ANSWER", {"answer": final["answer"], "citation": labels,
+        answer = humanize_ids(final["answer"]) if self.cfg.pkg_humanize_ids else final["answer"]
+        return "ANSWER", {"answer": answer, "citation": labels,
                           "source_url": first.source_url, "effective_date": first.effective_date}

@@ -76,6 +76,8 @@ class Pipeline:
             # Solar 추론 설정(주최 측 안내 문서의 개선 항목). 추론 토큰도 완료 토큰에 들어가므로 상한을 늘린다.
             body = dict(body, reasoning_effort=effort, max_tokens=body["max_tokens"] + self.cfg.reasoning_extra_tokens)
         raw = self.client.chat(stage, body, deadline, cap, tr["calls"])
+        if getattr(self.cfg, "pkg_contract_retry", False):
+            parser = self._guarded(parser)
         try:
             if raw == TRUNCATED:
                 raise ContractError("output_truncated")
@@ -85,6 +87,9 @@ class Pipeline:
             tr["recoveries"].append(rec)
             if not allow_repair or state["repair_used"]:
                 rec["recovered"] = False
+                if allow_repair and getattr(self.cfg, "pkg_contract_retry", False) and not state.get("fresh_retry_used"):
+                    # 앞 단계가 복구 기회를 이미 썼어도, 새 호출 재시도 기회가 남아 있으면 쓴다.
+                    return self._fresh_retry(stage, body, parser, deadline, cap, tr, state, rec)
                 raise ContractError(stage + "_contract_repair_budget_used:" + e.code)
             state["repair_used"] = True
             repair = copy.deepcopy(body)
@@ -102,20 +107,35 @@ class Pipeline:
                 rec["recovered"] = False
                 if getattr(self.cfg, "pkg_contract_retry", False) and not state.get("fresh_retry_used"):
                     # 복구 대화가 같은 오류를 되풀이하면 대화 없이 새로 1회 호출한다(본문이 달라 캐시도 새로 탄다).
-                    state["fresh_retry_used"] = True
-                    fresh = dict(body, temperature=0.3)
-                    raw3 = self.client.chat(stage + "_retry", fresh, deadline, cap, tr["calls"])
-                    try:
-                        if raw3 == TRUNCATED:
-                            raise ContractError("output_truncated")
-                        out = parser(raw3)
-                        rec["recovered"] = "fresh_retry"
-                        return out
-                    except ContractError as e3:
-                        raise ContractError(stage + "_contract_after_retry:" + e3.code)
+                    return self._fresh_retry(stage, body, parser, deadline, cap, tr, state, rec)
                 raise ContractError(stage + "_contract_after_repair:" + e2.code)
             rec["recovered"] = True
             return out
+
+    @staticmethod
+    def _guarded(parser):
+        """파서 안의 예상 못 한 예외(필드가 null인 출력 등)를 계약 오류로 바꾼다(요청 전체 실패 대신 복구·재시도)."""
+        def run(raw):
+            try:
+                return parser(raw)
+            except ContractError:
+                raise
+            except (TypeError, KeyError, AttributeError, ValueError, IndexError) as e:
+                raise ContractError("parse_exception:" + type(e).__name__) from None
+        return run
+
+    def _fresh_retry(self, stage, body, parser, deadline, cap, tr, state, rec):
+        """형식 오류 뒤 대화 없이 temperature 0.3으로 같은 요청을 1회 새로 보낸다(요청당 1회)."""
+        state["fresh_retry_used"] = True
+        raw3 = self.client.chat(stage + "_retry", dict(body, temperature=0.3), deadline, cap, tr["calls"])
+        try:
+            if raw3 == TRUNCATED:
+                raise ContractError("output_truncated")
+            out = parser(raw3)
+        except ContractError as e3:
+            raise ContractError(stage + "_contract_after_retry:" + e3.code)
+        rec["recovered"] = "fresh_retry"
+        return out
 
     def _supplement_citations(self, parsed, ctx, tr):
         """T1: 답변 문장에 명시한 같은 조례 조·항·별표가 문맥에 있었는데 인용에서 빠졌으면 보충.

@@ -460,3 +460,171 @@ class AbstainResample(unittest.TestCase):
         status, sub, tr, fake = run(dict(H0), pkg_abstain_resample=3)
         self.assertNotIn("resample", tr)
         self.assertEqual([n for n in fake.names() if n == "pkg_generate"], ["pkg_generate"])
+
+
+class RateLimitRetry(unittest.TestCase):
+    """rate_limit_retries: 429면 쉬었다가 같은 요청을 다시 보낸다(기본 0 = PKG11.1 동작)."""
+    def test_retry_recovers(self):
+        from lawqa.llm import CallError
+        import lawqa.llm as L
+        orig = L.time.sleep
+        L.time.sleep = lambda s: None
+        try:
+            h = dict(H0, pkg_select=[CallError("rate_limited", uncertain=False, status=503), select(ITEM)])
+            status, sub, tr, fake = run(h, rate_limit_retries=2, rate_limit_backoff=0.01)
+        finally:
+            L.time.sleep = orig
+        self.assertEqual(status, "ANSWER")
+        sel_calls = [c for c in tr["calls"] if c.get("stage") == "select"]
+        self.assertEqual(sel_calls[0]["error"], "rate_limited")
+        self.assertEqual(sel_calls[-1].get("rate_limit_retries"), 1)
+
+    def test_off_fails(self):
+        from lawqa.llm import CallError
+        h = dict(H0, pkg_select=[CallError("rate_limited", uncertain=False, status=503), select(ITEM)])
+        status, sub, tr, fake = run(h)
+        self.assertEqual(status, "ERROR")
+        self.assertEqual(sub["error"], "rate_limited")
+
+
+class LenientSubitemIds(unittest.TestCase):
+    def test_subitem_mapped_to_item_when_on(self):
+        import lawqa.pkg_pipeline as PPL
+        allowed = {"도시공원:제10조제1항제3호", "도시공원:제12조"}
+        orig = PPL.LENIENT_SUBITEM_IDS
+        try:
+            PPL.LENIENT_SUBITEM_IDS = True
+            self.assertEqual(PPL.parse_ids("도시공원:제10조제1항제3호가목, 도시공원:제12조", allowed, "claim"),
+                             ["도시공원:제10조제1항제3호", "도시공원:제12조"])
+            with self.assertRaises(Exception):  # 상위 호도 제공되지 않았으면 그대로 오류
+                PPL.parse_ids("도시공원:제11조제1항제2호나목", allowed, "claim")
+            PPL.LENIENT_SUBITEM_IDS = False
+            with self.assertRaises(Exception):
+                PPL.parse_ids("도시공원:제10조제1항제3호가목", allowed, "claim")
+        finally:
+            PPL.LENIENT_SUBITEM_IDS = orig
+
+    def test_other_lenient_forms(self):
+        import lawqa.pkg_pipeline as PPL
+        allowed = {"주차장:제5조제1항제4호", "주차장:제2조제16호", "도시공원:제2조제16호", "자전거:제3조"}
+        orig = PPL.LENIENT_SUBITEM_IDS
+        try:
+            PPL.LENIENT_SUBITEM_IDS = True
+            self.assertEqual(PPL.parse_ids("주차장:제5조제1항제4호나", allowed, "claim"), ["주차장:제5조제1항제4호"])
+            self.assertEqual(PPL.parse_ids("제3조", allowed, "claim"), ["자전거:제3조"])  # 하나에만 맞음
+            with self.assertRaises(Exception):
+                PPL.parse_ids("제2조제16호", allowed, "claim")  # 두 조례에 다 있어 모호
+            self.assertEqual(PPL.parse_ids("해당없음, 자전거:제3조", allowed, "issue"), ["자전거:제3조"])
+            with self.assertRaises(Exception):
+                PPL.parse_ids("해당없음", allowed, "claim")  # 주장 근거에는 설명문을 받지 않는다
+        finally:
+            PPL.LENIENT_SUBITEM_IDS = orig
+
+    def test_flag_set_from_config(self):
+        import lawqa.pkg_pipeline as PPL
+        run(dict(H0), pkg_lenient_subitem_ids=True)
+        self.assertTrue(PPL.LENIENT_SUBITEM_IDS)
+        run(dict(H0))
+        self.assertFalse(PPL.LENIENT_SUBITEM_IDS)
+
+
+class HumanizeIds(unittest.TestCase):
+    def test_conversions(self):
+        from lawqa.pkg_pipeline import humanize_ids
+        self.assertEqual(humanize_ids("할인한다(주차장:제7조제1항제9호)."), "할인한다(주차장 조례 제7조 제1항 제9호).")
+        self.assertEqual(humanize_ids("(도시공원:별표2#행25)"), "(도시공원 조례 별표 2)")
+        self.assertEqual(humanize_ids("(주차장:별표1#비고11)"), "(주차장 조례 별표 1 비고 11)")
+        self.assertEqual(humanize_ids("(도시공원:제5조제1항단서)"), "(도시공원 조례 제5조 제1항 단서)")
+        self.assertEqual(humanize_ids("청년:제10조의2제3항"), "청년 기본 조례 제10조의2 제3항")
+        self.assertEqual(humanize_ids("근거 없는 문장."), "근거 없는 문장.")
+
+    def test_flag(self):
+        txt = "네, 시장은 감면할 수 있습니다(주차장:제7조제1항제7호)."
+        h = dict(H0, pkg_generate=gen(ITEM, text=txt))
+        _, off, _, _ = run(dict(h))
+        _, on, _, _ = run(dict(h), pkg_humanize_ids=True)
+        self.assertIn("주차장:제7조제1항제7호", off["answer"])
+        self.assertIn("(주차장 조례 제7조 제1항 제7호)", on["answer"])
+        self.assertEqual(off["citation"], on["citation"])
+
+
+class PartialNoteTopic(unittest.TestCase):
+    def test_strip_redundant_prefix(self):
+        from lawqa.pkg_pipeline import _missing_topic as m
+        self.assertEqual(m("서울특별시 조례상 과태료 부과 여부"), "과태료 부과 여부")
+        self.assertEqual(m("서울특별시 주차장 설치 및 관리 조례상 경차 할인"), "경차 할인")
+        self.assertEqual(m("112 신고 가능 여부"), "112 신고 가능 여부")
+        self.assertEqual(m("서울시 청년 기본 조례에서 정한 이사비"), "서울시 청년 기본 조례에서 정한 이사비")
+        self.assertEqual(m("조례상"), "조례상")  # 지우면 빈 문자열이 되는 경우는 원문 유지
+
+
+class RetryAfterBudgetUsed(unittest.TestCase):
+    """앞 단계가 복구를 쓴 뒤 다음 단계 형식 오류도 새 호출 재시도를 받는다(pkg_contract_retry)."""
+    def test_select_repaired_then_generate_retried(self):
+        h = dict(H0, pkg_select=select("주차장:제99조"), pkg_generate=["not json", gen(f"{ITEM}, {LEAD}")])
+        h["pkg_select#repair"] = select(ITEM)
+        status, sub, tr, fake = run(h, pkg_contract_retry=True)
+        self.assertEqual(status, "ANSWER")
+        self.assertEqual([r.get("recovered") for r in tr["recoveries"]], [True, "fresh_retry"])
+
+    def test_off_keeps_old_error(self):
+        h = dict(H0, pkg_select=select("주차장:제99조"), pkg_generate=["not json", gen(f"{ITEM}, {LEAD}")])
+        h["pkg_select#repair"] = select(ITEM)
+        status, sub, tr, fake = run(h)
+        self.assertEqual(status, "ERROR")
+        self.assertIn("repair_budget_used", sub["error"])
+
+
+class CodexFindings(unittest.TestCase):
+    """Codex 점검(2026-11-21): d_claims null로 요청 전체가 죽던 문제, 근거 id가 붙은 미응답 지적 삭제."""
+    NULL = json.dumps({"a_requests": [{"a_request": "R1", "b_asked": "x", "c_basis": "DIRECT", "d_claims": None,
+                                       "e_status": "ANSWERED"}]})
+
+    def test_null_claims_goes_to_repair(self):
+        h = dict(H0, pkg_generate=lambda b: self.NULL)
+        h["pkg_generate#repair"] = gen(f"{ITEM}, {LEAD}")
+        status, sub, tr, fake = run(h, pkg_contract_retry=True)
+        self.assertEqual(status, "ANSWER")
+        self.assertEqual(tr["recoveries"][0]["error"], "generate_claims_type")
+
+    def test_one_bad_vote_does_not_kill_resample(self):
+        silent = gen("", "CORE_MISSING", basis="SILENT")
+        h = dict(H0, pkg_generate=[silent, gen(ITEM), gen(ITEM), gen(ITEM), lambda b: self.NULL, gen(ITEM)])
+        status, sub, tr, fake = run(h, pkg_delegation_answers=True, pkg_abstain_resample=5, pkg_abstain_resample_k=3)
+        self.assertEqual(status, "ANSWER")
+        self.assertEqual(tr["resample"]["answers"], 4)
+        self.assertTrue(any(str(d).startswith("ERROR:") for d in tr["resample"]["decisions"]))
+
+    def test_guard_converts_type_error(self):
+        from lawqa.pipeline import Pipeline
+        from lawqa.contracts import ContractError
+        g = Pipeline._guarded(lambda raw: {}["x"])
+        with self.assertRaises(ContractError):
+            g("{}")
+
+    def _two_req_run(self, issue_ids):
+        def frame2(body):
+            return json.dumps({"a_requests": [{"a_quote": "할인을 받을 수 있나요", "b_request": "할인 가능 여부"},
+                                              {"a_quote": "신청은 어디서", "b_request": "신청 장소"}],
+                               "b_queries": ["다둥이 주차요금 감면"]}, ensure_ascii=False)
+        sel2 = lambda body: json.dumps({"a_requests": [{"a_request": "R1", "b_ids": ITEM}, {"a_request": "R2", "b_ids": ITEM}]})
+        g2 = lambda body: GW2(("R1", [("네, 감면할 수 있습니다.", ITEM)], "ANSWERED", "DIRECT"),
+                              ("R2", [], "CORE_MISSING", "SILENT"))
+        rv = lambda body: json.dumps({"a_requests": [{"a_request": "R1", "b_check": "c", "c_verdict": "ANSWERED"},
+                                                     {"a_request": "R2", "b_check": "c", "c_verdict": "ANSWERED"}],
+                                      "b_issues": [{"a_kind": "unanswered_core", "b_claim": "R2", "c_ids": issue_ids,
+                                                    "d_reason": "r"}]}, ensure_ascii=False)
+        h = {"pkg_frame": frame2, "pkg_select": sel2, "pkg_generate": g2, "pkg_review": rv,
+             "pkg_correct": lambda body: GW2(("R1", [("네, 감면할 수 있습니다.", ITEM)], "ANSWERED", "DIRECT"),
+                                             ("R2", [("신청은 시장이 정한 곳에서 합니다.", ITEM)], "ANSWERED", "DIRECT"))}
+        return run(h, pkg_delegation_answers=True, pkg_partial_answers=True)
+
+    def test_evidenced_unanswered_issue_kept(self):
+        status, sub, tr, fake = self._two_req_run(ITEM)
+        self.assertIn("pkg_correct", fake.names())
+        self.assertNotIn("review_issues_on_missing_dropped", tr)
+
+    def test_unevidenced_unanswered_issue_dropped(self):
+        status, sub, tr, fake = self._two_req_run("")
+        self.assertNotIn("pkg_correct", fake.names())
+        self.assertEqual(tr["review_issues_on_missing_dropped"], 1)

@@ -70,6 +70,10 @@ class Config:
     pkg_abstain_resample_k: int = 1        # N개 중 답한 표본이 k개 이상이면 첫 답한 표본을 초안으로 쓴다
     pkg_resample_temperature: float = 0.7
     pkg_contract_retry: bool = False       # 복구 응답도 계약 오류면 같은 단계를 새로(temperature 0.3, 대화 없이) 1회 더 호출한다
+    pkg_humanize_ids: bool = False         # 답 문장 속 내부 근거 id(주차장:제7조제1항제9호)를 조문 표기(주차장 조례 제7조 제1항 제9호)로 바꾼다
+    pkg_lenient_subitem_ids: bool = False  # 근거 id에 그래프에 없는 '○목'이 붙으면 그 목을 포함한 '호' 명제로 받는다(제공된 경우만)
+    rate_limit_retries: int = 0            # Solar 429(요청 한도)일 때 쉬었다가 같은 요청을 다시 보내는 횟수(0=끔, PKG11.1 동작)
+    rate_limit_backoff: float = 1.5        # 첫 대기 초(재시도마다 2배, 약간의 무작위 지연 추가). 남은 시간이 부족하면 재시도하지 않는다
     reasoning_effort: str = ""             # Solar 추론 설정("", "low", "high"). 비우면 끔
     reasoning_stages: tuple = ("generate", "correct")
     reasoning_extra_tokens: int = 4000
